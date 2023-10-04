@@ -41,6 +41,16 @@ class CommentRecord extends FirestoreRecord {
   String get userimage => _userimage ?? '';
   bool hasUserimage() => _userimage != null;
 
+  // "uid" field.
+  String? _uid;
+  String get uid => _uid ?? '';
+  bool hasUid() => _uid != null;
+
+  // "timecomment" field.
+  DateTime? _timecomment;
+  DateTime? get timecomment => _timecomment;
+  bool hasTimecomment() => _timecomment != null;
+
   DocumentReference get parentReference => reference.parent.parent!;
 
   void _initializeFields() {
@@ -49,6 +59,8 @@ class CommentRecord extends FirestoreRecord {
     _body = snapshotData['body'] as String?;
     _userref = snapshotData['userref'] as DocumentReference?;
     _userimage = snapshotData['userimage'] as String?;
+    _uid = snapshotData['uid'] as String?;
+    _timecomment = snapshotData['timecomment'] as DateTime?;
   }
 
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
@@ -96,6 +108,8 @@ Map<String, dynamic> createCommentRecordData({
   String? body,
   DocumentReference? userref,
   String? userimage,
+  String? uid,
+  DateTime? timecomment,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -104,6 +118,8 @@ Map<String, dynamic> createCommentRecordData({
       'body': body,
       'userref': userref,
       'userimage': userimage,
+      'uid': uid,
+      'timecomment': timecomment,
     }.withoutNulls,
   );
 
@@ -119,12 +135,21 @@ class CommentRecordDocumentEquality implements Equality<CommentRecord> {
         e1?.oneline == e2?.oneline &&
         e1?.body == e2?.body &&
         e1?.userref == e2?.userref &&
-        e1?.userimage == e2?.userimage;
+        e1?.userimage == e2?.userimage &&
+        e1?.uid == e2?.uid &&
+        e1?.timecomment == e2?.timecomment;
   }
 
   @override
-  int hash(CommentRecord? e) => const ListEquality()
-      .hash([e?.username, e?.oneline, e?.body, e?.userref, e?.userimage]);
+  int hash(CommentRecord? e) => const ListEquality().hash([
+        e?.username,
+        e?.oneline,
+        e?.body,
+        e?.userref,
+        e?.userimage,
+        e?.uid,
+        e?.timecomment
+      ]);
 
   @override
   bool isValidKey(Object? o) => o is CommentRecord;

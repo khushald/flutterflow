@@ -51,6 +51,41 @@ class CommunitiesRecord extends FirestoreRecord {
   DocumentReference? get owner => _owner;
   bool hasOwner() => _owner != null;
 
+  // "members" field.
+  List<DocumentReference>? _members;
+  List<DocumentReference> get members => _members ?? const [];
+  bool hasMembers() => _members != null;
+
+  // "createdtime" field.
+  DateTime? _createdtime;
+  DateTime? get createdtime => _createdtime;
+  bool hasCreatedtime() => _createdtime != null;
+
+  // "owners" field.
+  List<DocumentReference>? _owners;
+  List<DocumentReference> get owners => _owners ?? const [];
+  bool hasOwners() => _owners != null;
+
+  // "moderator" field.
+  List<DocumentReference>? _moderator;
+  List<DocumentReference> get moderator => _moderator ?? const [];
+  bool hasModerator() => _moderator != null;
+
+  // "blockedusers" field.
+  List<DocumentReference>? _blockedusers;
+  List<DocumentReference> get blockedusers => _blockedusers ?? const [];
+  bool hasBlockedusers() => _blockedusers != null;
+
+  // "request" field.
+  List<DocumentReference>? _request;
+  List<DocumentReference> get request => _request ?? const [];
+  bool hasRequest() => _request != null;
+
+  // "communitytypeprivate" field.
+  bool? _communitytypeprivate;
+  bool get communitytypeprivate => _communitytypeprivate ?? false;
+  bool hasCommunitytypeprivate() => _communitytypeprivate != null;
+
   void _initializeFields() {
     _communityname = snapshotData['Communityname'] as String?;
     _description = snapshotData['description'] as String?;
@@ -59,6 +94,13 @@ class CommunitiesRecord extends FirestoreRecord {
     _communitycover = snapshotData['communitycover'] as String?;
     _communityoneline = snapshotData['communityoneline'] as String?;
     _owner = snapshotData['owner'] as DocumentReference?;
+    _members = getDataList(snapshotData['members']);
+    _createdtime = snapshotData['createdtime'] as DateTime?;
+    _owners = getDataList(snapshotData['owners']);
+    _moderator = getDataList(snapshotData['moderator']);
+    _blockedusers = getDataList(snapshotData['blockedusers']);
+    _request = getDataList(snapshotData['request']);
+    _communitytypeprivate = snapshotData['communitytypeprivate'] as bool?;
   }
 
   static CollectionReference get collection =>
@@ -102,6 +144,8 @@ Map<String, dynamic> createCommunitiesRecordData({
   String? communitycover,
   String? communityoneline,
   DocumentReference? owner,
+  DateTime? createdtime,
+  bool? communitytypeprivate,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -111,6 +155,8 @@ Map<String, dynamic> createCommunitiesRecordData({
       'communitycover': communitycover,
       'communityoneline': communityoneline,
       'owner': owner,
+      'createdtime': createdtime,
+      'communitytypeprivate': communitytypeprivate,
     }.withoutNulls,
   );
 
@@ -129,7 +175,14 @@ class CommunitiesRecordDocumentEquality implements Equality<CommunitiesRecord> {
         e1?.communityimage == e2?.communityimage &&
         e1?.communitycover == e2?.communitycover &&
         e1?.communityoneline == e2?.communityoneline &&
-        e1?.owner == e2?.owner;
+        e1?.owner == e2?.owner &&
+        listEquality.equals(e1?.members, e2?.members) &&
+        e1?.createdtime == e2?.createdtime &&
+        listEquality.equals(e1?.owners, e2?.owners) &&
+        listEquality.equals(e1?.moderator, e2?.moderator) &&
+        listEquality.equals(e1?.blockedusers, e2?.blockedusers) &&
+        listEquality.equals(e1?.request, e2?.request) &&
+        e1?.communitytypeprivate == e2?.communitytypeprivate;
   }
 
   @override
@@ -140,7 +193,14 @@ class CommunitiesRecordDocumentEquality implements Equality<CommunitiesRecord> {
         e?.communityimage,
         e?.communitycover,
         e?.communityoneline,
-        e?.owner
+        e?.owner,
+        e?.members,
+        e?.createdtime,
+        e?.owners,
+        e?.moderator,
+        e?.blockedusers,
+        e?.request,
+        e?.communitytypeprivate
       ]);
 
   @override

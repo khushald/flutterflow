@@ -1,14 +1,22 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/components/filter_widget.dart';
+import '/components/imageshow_widget.dart';
+import '/flutter_flow/flutter_flow_expanded_image_view.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_toggle_icon.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/flutter_flow_widgets.dart';
+import '/custom_code/widgets/index.dart' as custom_widgets;
+import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'communitypage_model.dart';
 export 'communitypage_model.dart';
@@ -25,7 +33,8 @@ class CommunitypageWidget extends StatefulWidget {
   _CommunitypageWidgetState createState() => _CommunitypageWidgetState();
 }
 
-class _CommunitypageWidgetState extends State<CommunitypageWidget> {
+class _CommunitypageWidgetState extends State<CommunitypageWidget>
+    with TickerProviderStateMixin {
   late CommunitypageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -34,6 +43,15 @@ class _CommunitypageWidgetState extends State<CommunitypageWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => CommunitypageModel());
+
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'Communitypage'});
+    _model.tabBarController = TabController(
+      vsync: this,
+      length: 2,
+      initialIndex: 0,
+    )..addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
@@ -47,125 +65,1082 @@ class _CommunitypageWidgetState extends State<CommunitypageWidget> {
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: Color(0xFF01080E),
-        body: SafeArea(
-          top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 200.0,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: AlignmentDirectional(0.0, -1.0),
-                      child: StreamBuilder<UserProfileRecord>(
-                        stream: UserProfileRecord.getDocument(
-                            currentUserReference!),
-                        builder: (context, snapshot) {
-                          // Customize what your widget looks like when it's loading.
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: SizedBox(
-                                width: 50.0,
-                                height: 50.0,
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xDAFF5963),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                          final imageUserProfileRecord = snapshot.data!;
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                              imageUserProfileRecord.coveerimage,
-                              width: double.infinity,
-                              height: 120.0,
-                              fit: BoxFit.cover,
+    return FutureBuilder<CommunitiesRecord>(
+      future: (_model
+              .documentRequestCompleter ??= Completer<CommunitiesRecord>()
+            ..complete(CommunitiesRecord.getDocumentOnce(widget.community!)))
+          .future,
+      builder: (context, snapshot) {
+        // Customize what your widget looks like when it's loading.
+        if (!snapshot.hasData) {
+          return Scaffold(
+            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            body: Center(
+              child: SizedBox(
+                width: 50.0,
+                height: 50.0,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Color(0xDAFF5963),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+        final communitypageCommunitiesRecord = snapshot.data!;
+        return GestureDetector(
+          onTap: () => _model.unfocusNode.canRequestFocus
+              ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+              : FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            key: scaffoldKey,
+            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            body: NestedScrollView(
+              floatHeaderSlivers: true,
+              headerSliverBuilder: (context, _) => [
+                SliverAppBar(
+                  pinned: false,
+                  floating: false,
+                  backgroundColor:
+                      FlutterFlowTheme.of(context).primaryBackground,
+                  automaticallyImplyLeading: true,
+                  title: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color:
+                              FlutterFlowTheme.of(context).secondaryBackground,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 8.0, 0.0, 0.0),
+                          child: FlutterFlowIconButton(
+                            borderRadius: 20.0,
+                            borderWidth: 1.0,
+                            buttonSize: 40.0,
+                            icon: Icon(
+                              Icons.filter_list_sharp,
+                              color: FlutterFlowTheme.of(context).primaryText,
+                              size: 24.0,
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(16.0, 50.0, 16.0, 0.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Align(
-                            alignment: AlignmentDirectional(-1.0, 0.0),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 20.0, 0.0, 0.0),
-                              child: ClipOval(
-                                child: Container(
-                                  width: 80.0,
-                                  height: 80.0,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Color(0xFFF7EFEF),
+                            onPressed: () async {
+                              logFirebaseEvent(
+                                  'COMMUNITYfilter_list_sharp_ICN_ON_TAP');
+                              logFirebaseEvent('IconButton_bottom_sheet');
+                              await showModalBottomSheet(
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                enableDrag: false,
+                                useSafeArea: true,
+                                context: context,
+                                builder: (context) {
+                                  return GestureDetector(
+                                    onTap: () => _model
+                                            .unfocusNode.canRequestFocus
+                                        ? FocusScope.of(context)
+                                            .requestFocus(_model.unfocusNode)
+                                        : FocusScope.of(context).unfocus(),
+                                    child: Padding(
+                                      padding: MediaQuery.viewInsetsOf(context),
+                                      child: FilterWidget(
+                                        tags:
+                                            communitypageCommunitiesRecord.tag,
+                                      ),
                                     ),
+                                  );
+                                },
+                              ).then((value) => safeSetState(() {}));
+
+                              logFirebaseEvent('IconButton_navigate_to');
+
+                              context.pushNamed(
+                                'filteredpost',
+                                queryParameters: {
+                                  'community': serializeParam(
+                                    widget.community,
+                                    ParamType.DocumentReference,
                                   ),
-                                  child: AuthUserStreamWidget(
-                                    builder: (context) => ClipRRect(
+                                }.withoutNulls,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [],
+                  bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(3.0),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).secondaryBackground,
+                      ),
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 170.0,
+                            child: Stack(
+                              children: [
+                                InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    logFirebaseEvent(
+                                        'COMMUNITYPAGE_PAGE_Image_ffn5a3fw_ON_TAP');
+                                    logFirebaseEvent('Image_expand_image');
+                                    await Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        type: PageTransitionType.fade,
+                                        child: FlutterFlowExpandedImageView(
+                                          image: CachedNetworkImage(
+                                            fadeInDuration:
+                                                Duration(milliseconds: 500),
+                                            fadeOutDuration:
+                                                Duration(milliseconds: 500),
+                                            imageUrl:
+                                                communitypageCommunitiesRecord
+                                                    .communitycover,
+                                            fit: BoxFit.contain,
+                                          ),
+                                          allowRotation: false,
+                                          tag: communitypageCommunitiesRecord
+                                              .communitycover,
+                                          useHeroAnimation: true,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Hero(
+                                    tag: communitypageCommunitiesRecord
+                                        .communitycover,
+                                    transitionOnUserGestures: true,
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network(
-                                        currentUserPhoto,
-                                        width: 300.0,
-                                        height: 200.0,
-                                        fit: BoxFit.contain,
+                                      child: CachedNetworkImage(
+                                        fadeInDuration:
+                                            Duration(milliseconds: 500),
+                                        fadeOutDuration:
+                                            Duration(milliseconds: 500),
+                                        imageUrl: communitypageCommunitiesRecord
+                                            .communitycover,
+                                        width: double.infinity,
+                                        height: 120.0,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
                                 ),
+                                Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      16.0, 50.0, 16.0, 0.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Align(
+                                              alignment: AlignmentDirectional(
+                                                  -1.00, 0.00),
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 20.0, 0.0, 0.0),
+                                                child: ClipOval(
+                                                  child: Container(
+                                                    width: 80.0,
+                                                    height: 80.0,
+                                                    decoration: BoxDecoration(
+                                                      color: FlutterFlowTheme
+                                                              .of(context)
+                                                          .secondaryBackground,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color:
+                                                            Color(0xFFF7EFEF),
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    child: InkWell(
+                                                      splashColor:
+                                                          Colors.transparent,
+                                                      focusColor:
+                                                          Colors.transparent,
+                                                      hoverColor:
+                                                          Colors.transparent,
+                                                      highlightColor:
+                                                          Colors.transparent,
+                                                      onTap: () async {
+                                                        logFirebaseEvent(
+                                                            'COMMUNITYPAGE_PAGE_Image_5lr52mv4_ON_TAP');
+                                                        logFirebaseEvent(
+                                                            'Image_expand_image');
+                                                        await Navigator.push(
+                                                          context,
+                                                          PageTransition(
+                                                            type:
+                                                                PageTransitionType
+                                                                    .fade,
+                                                            child:
+                                                                FlutterFlowExpandedImageView(
+                                                              image:
+                                                                  CachedNetworkImage(
+                                                                fadeInDuration:
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            500),
+                                                                fadeOutDuration:
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            500),
+                                                                imageUrl:
+                                                                    communitypageCommunitiesRecord
+                                                                        .communityimage,
+                                                                fit: BoxFit
+                                                                    .contain,
+                                                              ),
+                                                              allowRotation:
+                                                                  false,
+                                                              tag: communitypageCommunitiesRecord
+                                                                  .communityimage,
+                                                              useHeroAnimation:
+                                                                  true,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Hero(
+                                                        tag:
+                                                            communitypageCommunitiesRecord
+                                                                .communityimage,
+                                                        transitionOnUserGestures:
+                                                            true,
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                          child:
+                                                              CachedNetworkImage(
+                                                            fadeInDuration:
+                                                                Duration(
+                                                                    milliseconds:
+                                                                        500),
+                                                            fadeOutDuration:
+                                                                Duration(
+                                                                    milliseconds:
+                                                                        500),
+                                                            imageUrl:
+                                                                communitypageCommunitiesRecord
+                                                                    .communityimage,
+                                                            width: 300.0,
+                                                            height: 200.0,
+                                                            fit: BoxFit.contain,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Flexible(
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        8.0, 72.0, 0.0, 0.0),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        communitypageCommunitiesRecord
+                                                            .communityname
+                                                            .maybeHandleOverflow(
+                                                                maxChars: 16),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .titleMedium
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Readex Pro',
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryText,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                      ),
+                                                    ),
+                                                    Flexible(
+                                                      child: Text(
+                                                        communitypageCommunitiesRecord
+                                                            .communityoneline,
+                                                        style: FlutterFlowTheme
+                                                                .of(context)
+                                                            .bodyMedium
+                                                            .override(
+                                                              fontFamily:
+                                                                  'Readex Pro',
+                                                              fontSize: 14.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w300,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Stack(
+                                        children: [
+                                          if (!communitypageCommunitiesRecord
+                                              .communitytypeprivate)
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      0.0, 56.0, 0.0, 0.0),
+                                              child: Stack(
+                                                children: [
+                                                  if ((currentUserDocument
+                                                              ?.communityjoined
+                                                              ?.toList() ??
+                                                          [])
+                                                      .contains(
+                                                          widget.community))
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.00, 0.00),
+                                                      child:
+                                                          AuthUserStreamWidget(
+                                                        builder: (context) =>
+                                                            FFButtonWidget(
+                                                          onPressed: () async {
+                                                            logFirebaseEvent(
+                                                                'COMMUNITYPAGE_PAGE_FOLLOWING_BTN_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'Button_backend_call');
+
+                                                            await currentUserReference!
+                                                                .update({
+                                                              ...mapToFirestore(
+                                                                {
+                                                                  'communityjoined':
+                                                                      FieldValue
+                                                                          .arrayRemove([
+                                                                    widget
+                                                                        .community
+                                                                  ]),
+                                                                },
+                                                              ),
+                                                            });
+                                                            logFirebaseEvent(
+                                                                'Button_backend_call');
+
+                                                            await widget
+                                                                .community!
+                                                                .update({
+                                                              ...mapToFirestore(
+                                                                {
+                                                                  'members':
+                                                                      FieldValue
+                                                                          .arrayRemove([
+                                                                    currentUserReference
+                                                                  ]),
+                                                                },
+                                                              ),
+                                                            });
+                                                            logFirebaseEvent(
+                                                                'Button_refresh_database_request');
+                                                            setState(() => _model
+                                                                    .documentRequestCompleter =
+                                                                null);
+                                                            await _model
+                                                                .waitForDocumentRequestCompleted();
+                                                          },
+                                                          text: 'Following',
+                                                          options:
+                                                              FFButtonOptions(
+                                                            width: 60.0,
+                                                            height: 20.0,
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                            iconPadding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                            color: Color(
+                                                                0xDAFF5963),
+                                                            textStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleSmall
+                                                                    .override(
+                                                                      fontFamily:
+                                                                          'Readex Pro',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w300,
+                                                                    ),
+                                                            elevation: 3.0,
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  if (!(currentUserDocument
+                                                              ?.communityjoined
+                                                              ?.toList() ??
+                                                          [])
+                                                      .contains(
+                                                          widget.community))
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.00, 0.00),
+                                                      child:
+                                                          AuthUserStreamWidget(
+                                                        builder: (context) =>
+                                                            FFButtonWidget(
+                                                          onPressed: () async {
+                                                            logFirebaseEvent(
+                                                                'COMMUNITYPAGE_PAGE_FOLLOW_BTN_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'Button_backend_call');
+
+                                                            await currentUserReference!
+                                                                .update({
+                                                              ...mapToFirestore(
+                                                                {
+                                                                  'communityjoined':
+                                                                      FieldValue
+                                                                          .arrayUnion([
+                                                                    widget
+                                                                        .community
+                                                                  ]),
+                                                                },
+                                                              ),
+                                                            });
+                                                            logFirebaseEvent(
+                                                                'Button_backend_call');
+
+                                                            await widget
+                                                                .community!
+                                                                .update({
+                                                              ...mapToFirestore(
+                                                                {
+                                                                  'members':
+                                                                      FieldValue
+                                                                          .arrayUnion([
+                                                                    currentUserReference
+                                                                  ]),
+                                                                },
+                                                              ),
+                                                            });
+                                                            logFirebaseEvent(
+                                                                'Button_refresh_database_request');
+                                                            setState(() => _model
+                                                                    .documentRequestCompleter =
+                                                                null);
+                                                            await _model
+                                                                .waitForDocumentRequestCompleted();
+                                                          },
+                                                          text: 'Follow',
+                                                          options:
+                                                              FFButtonOptions(
+                                                            width: 60.0,
+                                                            height: 20.0,
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                            iconPadding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                            color: Color(
+                                                                0xDAFF5963),
+                                                            textStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleSmall
+                                                                    .override(
+                                                                      fontFamily:
+                                                                          'Readex Pro',
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          12.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w300,
+                                                                    ),
+                                                            elevation: 3.0,
+                                                            borderSide:
+                                                                BorderSide(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8.0),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          if (communitypageCommunitiesRecord
+                                              .communitytypeprivate)
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                      0.0, 56.0, 0.0, 0.0),
+                                              child: Stack(
+                                                children: [
+                                                  if (communitypageCommunitiesRecord
+                                                          .request
+                                                          .contains(
+                                                              currentUserReference) &&
+                                                      !communitypageCommunitiesRecord
+                                                          .members
+                                                          .contains(
+                                                              currentUserReference))
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.00, 0.00),
+                                                      child: FFButtonWidget(
+                                                        onPressed: () async {
+                                                          logFirebaseEvent(
+                                                              'COMMUNITYPAGE_PAGE_REQUESTED_BTN_ON_TAP');
+                                                          logFirebaseEvent(
+                                                              'Button_backend_call');
+
+                                                          await widget
+                                                              .community!
+                                                              .update({
+                                                            ...mapToFirestore(
+                                                              {
+                                                                'request':
+                                                                    FieldValue
+                                                                        .arrayRemove([
+                                                                  currentUserReference
+                                                                ]),
+                                                              },
+                                                            ),
+                                                          });
+                                                          logFirebaseEvent(
+                                                              'Button_refresh_database_request');
+                                                          setState(() => _model
+                                                                  .documentRequestCompleter =
+                                                              null);
+                                                          await _model
+                                                              .waitForDocumentRequestCompleted();
+                                                        },
+                                                        text: 'Requested',
+                                                        options:
+                                                            FFButtonOptions(
+                                                          width: 60.0,
+                                                          height: 20.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color:
+                                                              Color(0xDAFF5963),
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        'Readex Pro',
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w300,
+                                                                  ),
+                                                          elevation: 3.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  if (!communitypageCommunitiesRecord
+                                                      .request
+                                                      .contains(
+                                                          currentUserReference))
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.00, 0.00),
+                                                      child: FFButtonWidget(
+                                                        onPressed: () async {
+                                                          logFirebaseEvent(
+                                                              'COMMUNITYPAGE_PAGE_REQUEST_BTN_ON_TAP');
+                                                          logFirebaseEvent(
+                                                              'Button_backend_call');
+
+                                                          await widget
+                                                              .community!
+                                                              .update({
+                                                            ...mapToFirestore(
+                                                              {
+                                                                'request':
+                                                                    FieldValue
+                                                                        .arrayUnion([
+                                                                  currentUserReference
+                                                                ]),
+                                                              },
+                                                            ),
+                                                          });
+                                                          logFirebaseEvent(
+                                                              'Button_refresh_database_request');
+                                                          setState(() => _model
+                                                                  .documentRequestCompleter =
+                                                              null);
+                                                          await _model
+                                                              .waitForDocumentRequestCompleted();
+                                                        },
+                                                        text: 'Request',
+                                                        options:
+                                                            FFButtonOptions(
+                                                          width: 60.0,
+                                                          height: 20.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color:
+                                                              Color(0xDAFF5963),
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        'Readex Pro',
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w300,
+                                                                  ),
+                                                          elevation: 3.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  if (communitypageCommunitiesRecord
+                                                      .members
+                                                      .contains(
+                                                          currentUserReference))
+                                                    Align(
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              1.00, 0.00),
+                                                      child: FFButtonWidget(
+                                                        onPressed: () async {
+                                                          logFirebaseEvent(
+                                                              'COMMUNITYPAGE_PAGE_JOINED_BTN_ON_TAP');
+                                                          logFirebaseEvent(
+                                                              'Button_backend_call');
+
+                                                          await widget
+                                                              .community!
+                                                              .update({
+                                                            ...mapToFirestore(
+                                                              {
+                                                                'members':
+                                                                    FieldValue
+                                                                        .arrayRemove([
+                                                                  currentUserReference
+                                                                ]),
+                                                              },
+                                                            ),
+                                                          });
+                                                          logFirebaseEvent(
+                                                              'Button_backend_call');
+
+                                                          await currentUserReference!
+                                                              .update({
+                                                            ...mapToFirestore(
+                                                              {
+                                                                'communityjoined':
+                                                                    FieldValue
+                                                                        .arrayRemove([
+                                                                  widget
+                                                                      .community
+                                                                ]),
+                                                              },
+                                                            ),
+                                                          });
+                                                        },
+                                                        text: 'Joined',
+                                                        options:
+                                                            FFButtonOptions(
+                                                          width: 60.0,
+                                                          height: 20.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryBackground,
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        'Readex Pro',
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
+                                                                    fontSize:
+                                                                        12.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w300,
+                                                                  ),
+                                                          elevation: 3.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors.white,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                16.0, 16.0, 16.0, 16.0),
+                            child: Text(
+                              communitypageCommunitiesRecord.description
+                                  .maybeHandleOverflow(
+                                maxChars: 250,
+                                replacement: '…',
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 4,
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    fontFamily: 'Readex Pro',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                            ),
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional(0.00, 0.00),
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                logFirebaseEvent(
+                                    'COMMUNITYPAGE_PAGE_Text_aa61a3dr_ON_TAP');
+                                logFirebaseEvent('Text_navigate_to');
+
+                                context.pushNamed(
+                                  'followers',
+                                  queryParameters: {
+                                    'communityref': serializeParam(
+                                      widget.community,
+                                      ParamType.DocumentReference,
+                                    ),
+                                  }.withoutNulls,
+                                );
+                              },
+                              child: Text(
+                                '${communitypageCommunitiesRecord.members.length.toString()} members',
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      fontFamily: 'Readex Pro',
+                                      fontWeight: FontWeight.w300,
+                                    ),
                               ),
                             ),
                           ),
-                          Expanded(
+                          Align(
+                            alignment: AlignmentDirectional(0.00, 0.00),
                             child: Padding(
                               padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 0.0, 0.0, 0.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                  16.0, 16.0, 16.0, 16.0),
+                              child: Wrap(
+                                spacing: 16.0,
+                                runSpacing: 8.0,
+                                alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.start,
+                                direction: Axis.horizontal,
+                                runAlignment: WrapAlignment.start,
+                                verticalDirection: VerticalDirection.down,
+                                clipBehavior: Clip.none,
                                 children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 75.0, 0.0, 0.0),
-                                    child: AuthUserStreamWidget(
-                                      builder: (context) => Text(
-                                        currentUserDisplayName,
-                                        style: FlutterFlowTheme.of(context)
-                                            .headlineMedium
-                                            .override(
-                                              fontFamily: 'Outfit',
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
+                                  Container(
+                                    width: 72.0,
+                                    height: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xDAFF5963),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4.0,
+                                          color: Color(0x33000000),
+                                          offset: Offset(0.0, 2.0),
+                                        )
+                                      ],
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                  ),
-                                  AuthUserStreamWidget(
-                                    builder: (context) => Text(
-                                      valueOrDefault(
-                                          currentUserDocument?.useroneline, ''),
+                                    alignment: AlignmentDirectional(0.00, 0.00),
+                                    child: Text(
+                                      communitypageCommunitiesRecord.tag[0],
+                                      textAlign: TextAlign.center,
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
                                             fontFamily: 'Readex Pro',
+                                            color: Colors.white,
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 72.0,
+                                    height: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xDAFF5963),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4.0,
+                                          color: Color(0x33000000),
+                                          offset: Offset(0.0, 2.0),
+                                        )
+                                      ],
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    alignment: AlignmentDirectional(0.00, 0.00),
+                                    child: Text(
+                                      communitypageCommunitiesRecord.tag[1],
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            color: Colors.white,
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 72.0,
+                                    height: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xDAFF5963),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4.0,
+                                          color: Color(0x33000000),
+                                          offset: Offset(0.0, 2.0),
+                                        )
+                                      ],
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    alignment: AlignmentDirectional(0.00, 0.00),
+                                    child: Text(
+                                      communitypageCommunitiesRecord.tag[2],
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            color: Colors.white,
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 72.0,
+                                    height: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xDAFF5963),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4.0,
+                                          color: Color(0x33000000),
+                                          offset: Offset(0.0, 2.0),
+                                        )
+                                      ],
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    alignment: AlignmentDirectional(0.00, 0.00),
+                                    child: Text(
+                                      communitypageCommunitiesRecord.tag[3],
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            color: Colors.white,
+                                            fontSize: 10.0,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 72.0,
+                                    height: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xDAFF5963),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          blurRadius: 4.0,
+                                          color: Color(0x33000000),
+                                          offset: Offset(0.0, 2.0),
+                                        )
+                                      ],
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    alignment: AlignmentDirectional(0.00, 0.00),
+                                    child: Text(
+                                      communitypageCommunitiesRecord.tag[4],
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium
+                                          .override(
+                                            fontFamily: 'Readex Pro',
+                                            color: Colors.white,
+                                            fontSize: 10.0,
                                             fontWeight: FontWeight.w300,
                                           ),
                                     ),
@@ -177,978 +1152,1201 @@ class _CommunitypageWidgetState extends State<CommunitypageWidget> {
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
-                child: Text(
-                  'Hello World sadasdasd  sdasdsadasd ssadasdsadsadsad sdsadsffsdfs dsfsdfdsfdsfds fdsfdsfdsfds fdsfsdfdsf dfdsfdsfdsfds fdfdsfsdfd dfsdf',
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        fontFamily: 'Readex Pro',
-                        fontWeight: FontWeight.w300,
-                      ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16.0, 16.0, 16.0, 16.0),
-                child: Wrap(
-                  spacing: 32.0,
-                  runSpacing: 8.0,
-                  alignment: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  direction: Axis.horizontal,
-                  runAlignment: WrapAlignment.start,
-                  verticalDirection: VerticalDirection.down,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 72.0,
-                      height: 20.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xDAFF5963),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 4.0,
-                            color: Color(0x33000000),
-                            offset: Offset(0.0, 2.0),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Text(
-                        'Hello World',
-                        textAlign: TextAlign.center,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 10.0,
-                              fontWeight: FontWeight.w300,
-                            ),
-                      ),
-                    ),
-                    Container(
-                      width: 72.0,
-                      height: 20.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xDAFF5963),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 4.0,
-                            color: Color(0x33000000),
-                            offset: Offset(0.0, 2.0),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Text(
-                        'Hello World',
-                        textAlign: TextAlign.center,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 10.0,
-                              fontWeight: FontWeight.w300,
-                            ),
-                      ),
-                    ),
-                    Container(
-                      width: 72.0,
-                      height: 20.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xDAFF5963),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 4.0,
-                            color: Color(0x33000000),
-                            offset: Offset(0.0, 2.0),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Text(
-                        'Hello World',
-                        textAlign: TextAlign.center,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 10.0,
-                              fontWeight: FontWeight.w300,
-                            ),
-                      ),
-                    ),
-                    Container(
-                      width: 72.0,
-                      height: 20.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xDAFF5963),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 4.0,
-                            color: Color(0x33000000),
-                            offset: Offset(0.0, 2.0),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Text(
-                        'Hello World',
-                        textAlign: TextAlign.center,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 10.0,
-                              fontWeight: FontWeight.w300,
-                            ),
-                      ),
-                    ),
-                    Container(
-                      width: 72.0,
-                      height: 20.0,
-                      decoration: BoxDecoration(
-                        color: Color(0xDAFF5963),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 4.0,
-                            color: Color(0x33000000),
-                            offset: Offset(0.0, 2.0),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Text(
-                        'Hello World',
-                        textAlign: TextAlign.center,
-                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                              fontFamily: 'Readex Pro',
-                              fontSize: 10.0,
-                              fontWeight: FontWeight.w300,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: DefaultTabController(
-                  length: 2,
-                  initialIndex: 0,
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment(0.0, 0),
-                        child: TabBar(
-                          labelColor: FlutterFlowTheme.of(context).primaryText,
-                          unselectedLabelColor:
-                              FlutterFlowTheme.of(context).secondaryText,
-                          labelStyle: FlutterFlowTheme.of(context).titleMedium,
-                          indicatorColor: FlutterFlowTheme.of(context).primary,
-                          tabs: [
-                            Tab(
-                              text: 'Post',
-                            ),
-                            Tab(
-                              text: 'Community',
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 8.0, 16.0, 0.0),
-                              child: StreamBuilder<List<PostRecord>>(
-                                stream: queryPostRecord(
-                                  queryBuilder: (postRecord) =>
-                                      postRecord.where('post_community',
-                                          isEqualTo: widget.community),
-                                ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            Color(0xDAFF5963),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  List<PostRecord> listViewPostRecordList =
-                                      snapshot.data!;
-                                  return ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: listViewPostRecordList.length,
-                                    itemBuilder: (context, listViewIndex) {
-                                      final listViewPostRecord =
-                                          listViewPostRecordList[listViewIndex];
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 16.0, 0.0, 0.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 45.0,
-                                                  height: 45.0,
-                                                  decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    image: DecorationImage(
-                                                      fit: BoxFit.cover,
-                                                      image: Image.network(
-                                                        listViewPostRecord
-                                                            .userimage,
-                                                      ).image,
-                                                    ),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          8.0, 0.0, 0.0, 0.0),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      AutoSizeText(
-                                                        listViewPostRecord
-                                                            .username,
-                                                        maxLines: 4,
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .titleMedium
-                                                            .override(
-                                                              fontFamily:
-                                                                  'Readex Pro',
-                                                              fontSize: 16.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    8.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Container(
-                                                              width: 72.0,
-                                                              height: 20.0,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Color(
-                                                                    0xDAFF5963),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10.0),
-                                                              ),
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Text(
-                                                                listViewPostRecord
-                                                                    .posttag,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          'Readex Pro',
-                                                                      fontSize:
-                                                                          10.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w300,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          8.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0),
-                                                              child: Container(
-                                                                width: 72.0,
-                                                                height: 20.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Color(
-                                                                      0xFF01080E),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10.0),
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Color(
-                                                                        0xFFF7EFEF),
-                                                                  ),
-                                                                ),
-                                                                alignment:
-                                                                    AlignmentDirectional(
-                                                                        0.0,
-                                                                        0.0),
-                                                                child: Text(
-                                                                  listViewPostRecord
-                                                                      .posttype,
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            'Readex Pro',
-                                                                        fontSize:
-                                                                            10.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w300,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 16.0, 0.0, 16.0),
-                                            child: InkWell(
-                                              splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                context.pushNamed(
-                                                  'post',
-                                                  queryParameters: {
-                                                    'post': serializeParam(
-                                                      listViewPostRecord
-                                                          .reference,
-                                                      ParamType
-                                                          .DocumentReference,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-                                              },
-                                              child: Text(
-                                                listViewPostRecord
-                                                    .postdescrition
-                                                    .maybeHandleOverflow(
-                                                  maxChars: 250,
-                                                  replacement: '…',
-                                                ),
-                                                maxLines: 5,
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              'Readex Pro',
-                                                          fontSize: 14.0,
-                                                          fontWeight:
-                                                              FontWeight.w200,
-                                                        ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 16.0),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              child: Image.network(
-                                                listViewPostRecord.postimage,
-                                                width: double.infinity,
-                                                height: 100.0,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 16.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                ToggleIcon(
-                                                  onPressed: () async {
-                                                    final likedbyuserElement =
-                                                        currentUserReference;
-                                                    final likedbyuserUpdate =
-                                                        listViewPostRecord
-                                                                .likedbyuser
-                                                                .contains(
-                                                                    likedbyuserElement)
-                                                            ? FieldValue
-                                                                .arrayRemove([
-                                                                likedbyuserElement
-                                                              ])
-                                                            : FieldValue
-                                                                .arrayUnion([
-                                                                likedbyuserElement
-                                                              ]);
-                                                    await listViewPostRecord
-                                                        .reference
-                                                        .update({
-                                                      'likedbyuser':
-                                                          likedbyuserUpdate,
-                                                    });
-                                                    if (listViewPostRecord
-                                                        .likedbyuser
-                                                        .contains(
-                                                            currentUserReference)) {
-                                                      await listViewPostRecord
-                                                          .reference
-                                                          .update({
-                                                        'likedbyuser':
-                                                            FieldValue
-                                                                .arrayRemove([
-                                                          currentUserReference
-                                                        ]),
-                                                      });
-                                                      return;
-                                                    } else {
-                                                      await listViewPostRecord
-                                                          .reference
-                                                          .update({
-                                                        'likedbyuser':
-                                                            FieldValue
-                                                                .arrayUnion([
-                                                          currentUserReference
-                                                        ]),
-                                                      });
-                                                      return;
-                                                    }
-                                                  },
-                                                  value: listViewPostRecord
-                                                      .likedbyuser
-                                                      .contains(
-                                                          currentUserReference),
-                                                  onIcon: Icon(
-                                                    Icons.favorite,
-                                                    color: Color(0xDAFF5963),
-                                                    size: 25.0,
-                                                  ),
-                                                  offIcon: Icon(
-                                                    Icons.favorite_border,
-                                                    color: Color(0xFFF7EFEF),
-                                                    size: 25.0,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '34',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium,
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          16.0, 0.0, 0.0, 0.0),
-                                                  child: FlutterFlowIconButton(
-                                                    borderColor:
-                                                        Colors.transparent,
-                                                    borderRadius: 20.0,
-                                                    borderWidth: 0.0,
-                                                    buttonSize: 40.0,
-                                                    icon: Icon(
-                                                      Icons.comment,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                      size: 24.0,
-                                                    ),
-                                                    onPressed: () async {
-                                                      context.pushNamed(
-                                                        'post',
-                                                        queryParameters: {
-                                                          'post':
-                                                              serializeParam(
-                                                            listViewPostRecord
-                                                                .reference,
-                                                            ParamType
-                                                                .DocumentReference,
-                                                          ),
-                                                        }.withoutNulls,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(
-                                            thickness: 1.0,
-                                            color: FlutterFlowTheme.of(context)
-                                                .accent4,
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 8.0, 16.0, 0.0),
-                              child: StreamBuilder<List<CommunityPostRecord>>(
-                                stream: queryCommunityPostRecord(
-                                  queryBuilder: (communityPostRecord) =>
-                                      communityPostRecord.where('communityref',
-                                          isEqualTo: widget.community),
-                                ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            Color(0xDAFF5963),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  List<CommunityPostRecord>
-                                      listViewCommunityPostRecordList =
-                                      snapshot.data!;
-                                  return ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    scrollDirection: Axis.vertical,
-                                    itemCount:
-                                        listViewCommunityPostRecordList.length,
-                                    itemBuilder: (context, listViewIndex) {
-                                      final listViewCommunityPostRecord =
-                                          listViewCommunityPostRecordList[
-                                              listViewIndex];
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 16.0, 0.0, 0.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 45.0,
-                                                  height: 45.0,
-                                                  decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    image: DecorationImage(
-                                                      fit: BoxFit.cover,
-                                                      image: Image.network(
-                                                        listViewCommunityPostRecord
-                                                            .communityprofieimage,
-                                                      ).image,
-                                                    ),
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          8.0, 0.0, 0.0, 0.0),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      AutoSizeText(
-                                                        listViewCommunityPostRecord
-                                                            .communityname,
-                                                        maxLines: 4,
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .titleMedium
-                                                            .override(
-                                                              fontFamily:
-                                                                  'Readex Pro',
-                                                              fontSize: 16.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    8.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Container(
-                                                              width: 72.0,
-                                                              height: 20.0,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Color(
-                                                                    0xDAFF5963),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10.0),
-                                                              ),
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      0.0, 0.0),
-                                                              child: Text(
-                                                                listViewCommunityPostRecord
-                                                                    .tag,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          'Readex Pro',
-                                                                      fontSize:
-                                                                          10.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w300,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          8.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0),
-                                                              child: Container(
-                                                                width: 72.0,
-                                                                height: 20.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Color(
-                                                                      0xFF01080E),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10.0),
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Color(
-                                                                        0xFFF7EFEF),
-                                                                  ),
-                                                                ),
-                                                                alignment:
-                                                                    AlignmentDirectional(
-                                                                        0.0,
-                                                                        0.0),
-                                                                child: Text(
-                                                                  listViewCommunityPostRecord
-                                                                      .type,
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMedium
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            'Readex Pro',
-                                                                        fontSize:
-                                                                            10.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w300,
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 16.0, 0.0, 16.0),
-                                            child: InkWell(
-                                              splashColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              onTap: () async {
-                                                context.pushNamed(
-                                                  'postcommunity',
-                                                  queryParameters: {
-                                                    'communitypost':
-                                                        serializeParam(
-                                                      listViewCommunityPostRecord
-                                                          .reference,
-                                                      ParamType
-                                                          .DocumentReference,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-                                              },
-                                              child: Text(
-                                                listViewCommunityPostRecord
-                                                    .description
-                                                    .maybeHandleOverflow(
-                                                  maxChars: 250,
-                                                  replacement: '…',
-                                                ),
-                                                maxLines: 5,
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              'Readex Pro',
-                                                          fontSize: 14.0,
-                                                          fontWeight:
-                                                              FontWeight.w200,
-                                                        ),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 16.0),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              child: Image.network(
-                                                listViewCommunityPostRecord
-                                                    .image,
-                                                width: double.infinity,
-                                                height: 100.0,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 16.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                ToggleIcon(
-                                                  onPressed: () async {
-                                                    final likedbyuserElement =
-                                                        currentUserReference;
-                                                    final likedbyuserUpdate =
-                                                        listViewCommunityPostRecord
-                                                                .likedbyuser
-                                                                .contains(
-                                                                    likedbyuserElement)
-                                                            ? FieldValue
-                                                                .arrayRemove([
-                                                                likedbyuserElement
-                                                              ])
-                                                            : FieldValue
-                                                                .arrayUnion([
-                                                                likedbyuserElement
-                                                              ]);
-                                                    await listViewCommunityPostRecord
-                                                        .reference
-                                                        .update({
-                                                      'likedbyuser':
-                                                          likedbyuserUpdate,
-                                                    });
-                                                    if (listViewCommunityPostRecord
-                                                        .likedbyuser
-                                                        .contains(
-                                                            currentUserReference)) {
-                                                      await listViewCommunityPostRecord
-                                                          .reference
-                                                          .update({
-                                                        'likedbyuser':
-                                                            FieldValue
-                                                                .arrayRemove([
-                                                          currentUserReference
-                                                        ]),
-                                                      });
-                                                      return;
-                                                    } else {
-                                                      await listViewCommunityPostRecord
-                                                          .reference
-                                                          .update({
-                                                        'likedbyuser':
-                                                            FieldValue
-                                                                .arrayUnion([
-                                                          currentUserReference
-                                                        ]),
-                                                      });
-                                                      return;
-                                                    }
-                                                  },
-                                                  value: listViewCommunityPostRecord
-                                                      .likedbyuser
-                                                      .contains(
-                                                          currentUserReference),
-                                                  onIcon: Icon(
-                                                    Icons.favorite,
-                                                    color: Color(0xDAFF5963),
-                                                    size: 25.0,
-                                                  ),
-                                                  offIcon: Icon(
-                                                    Icons.favorite_border,
-                                                    color: Color(0xFFF7EFEF),
-                                                    size: 25.0,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '34',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium,
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          16.0, 0.0, 0.0, 0.0),
-                                                  child: FlutterFlowIconButton(
-                                                    borderColor:
-                                                        Colors.transparent,
-                                                    borderRadius: 20.0,
-                                                    borderWidth: 0.0,
-                                                    buttonSize: 40.0,
-                                                    icon: Icon(
-                                                      Icons.comment,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                      size: 24.0,
-                                                    ),
-                                                    onPressed: () async {
-                                                      context.pushNamed(
-                                                        'postcommunity',
-                                                        queryParameters: {
-                                                          'communitypost':
-                                                              serializeParam(
-                                                            listViewCommunityPostRecord
-                                                                .reference,
-                                                            ParamType
-                                                                .DocumentReference,
-                                                          ),
-                                                        }.withoutNulls,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Divider(
-                                            thickness: 1.0,
-                                            color: FlutterFlowTheme.of(context)
-                                                .accent4,
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
-                ),
+                  centerTitle: false,
+                  elevation: 4.0,
+                )
+              ],
+              body: Builder(
+                builder: (context) {
+                  return SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 35.0, 0.0, 0.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          if (!communitypageCommunitiesRecord
+                                  .communitytypeprivate ||
+                              communitypageCommunitiesRecord.members
+                                  .contains(currentUserReference))
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment(0.0, 0),
+                                    child: TabBar(
+                                      labelColor: FlutterFlowTheme.of(context)
+                                          .primaryText,
+                                      unselectedLabelColor:
+                                          FlutterFlowTheme.of(context)
+                                              .secondaryText,
+                                      labelStyle: FlutterFlowTheme.of(context)
+                                          .titleMedium,
+                                      unselectedLabelStyle: TextStyle(),
+                                      indicatorColor:
+                                          FlutterFlowTheme.of(context).primary,
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          8.0, 8.0, 8.0, 8.0),
+                                      tabs: [
+                                        Tab(
+                                          text: 'Post',
+                                          iconMargin:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 20.0, 0.0),
+                                        ),
+                                        Tab(
+                                          text: 'Community',
+                                        ),
+                                      ],
+                                      controller: _model.tabBarController,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: TabBarView(
+                                      controller: _model.tabBarController,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  16.0, 8.0, 16.0, 0.0),
+                                          child: PagedListView<
+                                              DocumentSnapshot<Object?>?,
+                                              PostRecord>(
+                                            pagingController:
+                                                _model.setListViewController1(
+                                              PostRecord.collection
+                                                  .where(
+                                                    'post_community',
+                                                    isEqualTo: widget.community,
+                                                  )
+                                                  .where(
+                                                    'communitypost',
+                                                    isEqualTo: false,
+                                                  ),
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            reverse: false,
+                                            scrollDirection: Axis.vertical,
+                                            builderDelegate:
+                                                PagedChildBuilderDelegate<
+                                                    PostRecord>(
+                                              // Customize what your widget looks like when it's loading the first page.
+                                              firstPageProgressIndicatorBuilder:
+                                                  (_) => Center(
+                                                child: SizedBox(
+                                                  width: 50.0,
+                                                  height: 50.0,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                            Color>(
+                                                      Color(0xDAFF5963),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              // Customize what your widget looks like when it's loading another page.
+                                              newPageProgressIndicatorBuilder:
+                                                  (_) => Center(
+                                                child: SizedBox(
+                                                  width: 50.0,
+                                                  height: 50.0,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                            Color>(
+                                                      Color(0xDAFF5963),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              itemBuilder:
+                                                  (context, _, listViewIndex) {
+                                                final listViewPostRecord = _model
+                                                    .listViewPagingController1!
+                                                    .itemList![listViewIndex];
+                                                return InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    logFirebaseEvent(
+                                                        'COMMUNITYColumn_qwfg4yca_ON_TAP');
+                                                    logFirebaseEvent(
+                                                        'Column_navigate_to');
+
+                                                    context.pushNamed(
+                                                      'post',
+                                                      queryParameters: {
+                                                        'post': serializeParam(
+                                                          listViewPostRecord
+                                                              .reference,
+                                                          ParamType
+                                                              .DocumentReference,
+                                                        ),
+                                                      }.withoutNulls,
+                                                    );
+                                                  },
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    16.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width: 45.0,
+                                                              height: 45.0,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primaryText,
+                                                                image:
+                                                                    DecorationImage(
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  image:
+                                                                      CachedNetworkImageProvider(
+                                                                    listViewPostRecord
+                                                                        .userimage,
+                                                                  ),
+                                                                ),
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          8.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  InkWell(
+                                                                    splashColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    focusColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    hoverColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    highlightColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    onTap:
+                                                                        () async {
+                                                                      logFirebaseEvent(
+                                                                          'COMMUNITYPAGE_PAGE_Text_hftozhg4_ON_TAP');
+                                                                      logFirebaseEvent(
+                                                                          'Text_navigate_to');
+
+                                                                      context
+                                                                          .pushNamed(
+                                                                        'Profile_friends',
+                                                                        queryParameters:
+                                                                            {
+                                                                          'friend':
+                                                                              serializeParam(
+                                                                            listViewPostRecord.postUser,
+                                                                            ParamType.DocumentReference,
+                                                                          ),
+                                                                        }.withoutNulls,
+                                                                      );
+                                                                    },
+                                                                    child:
+                                                                        AutoSizeText(
+                                                                      listViewPostRecord
+                                                                          .username,
+                                                                      maxLines:
+                                                                          4,
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .titleMedium
+                                                                          .override(
+                                                                            fontFamily:
+                                                                                'Readex Pro',
+                                                                            color:
+                                                                                FlutterFlowTheme.of(context).primaryText,
+                                                                            fontSize:
+                                                                                16.0,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            8.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                    child: Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .max,
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Container(
+                                                                          height:
+                                                                              20.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xDAFF5963),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10.0),
+                                                                          ),
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.00,
+                                                                              0.00),
+                                                                          child:
+                                                                              Padding(
+                                                                            padding: EdgeInsetsDirectional.fromSTEB(
+                                                                                8.0,
+                                                                                0.0,
+                                                                                8.0,
+                                                                                0.0),
+                                                                            child:
+                                                                                Text(
+                                                                              listViewPostRecord.posttag,
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    fontFamily: 'Readex Pro',
+                                                                                    color: Colors.white,
+                                                                                    fontSize: 10.0,
+                                                                                    fontWeight: FontWeight.w300,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        Padding(
+                                                                          padding: EdgeInsetsDirectional.fromSTEB(
+                                                                              8.0,
+                                                                              0.0,
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Container(
+                                                                            height:
+                                                                                20.0,
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: Color(0xFF01080E),
+                                                                              borderRadius: BorderRadius.circular(10.0),
+                                                                              border: Border.all(
+                                                                                color: Color(0xFFF7EFEF),
+                                                                              ),
+                                                                            ),
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.00, 0.00),
+                                                                            child:
+                                                                                Padding(
+                                                                              padding: EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
+                                                                              child: Text(
+                                                                                listViewPostRecord.posttype,
+                                                                                textAlign: TextAlign.center,
+                                                                                style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                      fontFamily: 'Readex Pro',
+                                                                                      color: Colors.white,
+                                                                                      fontSize: 10.0,
+                                                                                      fontWeight: FontWeight.w300,
+                                                                                    ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    16.0,
+                                                                    0.0,
+                                                                    16.0),
+                                                        child: Container(
+                                                          width:
+                                                              double.infinity,
+                                                          child: custom_widgets
+                                                              .CustomLinkifyWidget(
+                                                            width:
+                                                                double.infinity,
+                                                            text: listViewPostRecord
+                                                                .postdescrition,
+                                                            characterLimit: 256,
+                                                            textColor:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primaryText,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      if (listViewPostRecord
+                                                              .multipleimage
+                                                              .length >=
+                                                          1)
+                                                        ImageshowWidget(
+                                                          key: Key(
+                                                              'Keygh9_${listViewIndex}_of_${_model.listViewPagingController1!.itemList!.length}'),
+                                                          parameter1:
+                                                              listViewPostRecord
+                                                                  .multipleimage,
+                                                        ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    0.0,
+                                                                    0.0,
+                                                                    16.0),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: [
+                                                            ToggleIcon(
+                                                              onPressed:
+                                                                  () async {
+                                                                final likedbyuserElement =
+                                                                    currentUserReference;
+                                                                final likedbyuserUpdate = listViewPostRecord
+                                                                        .likedbyuser
+                                                                        .contains(
+                                                                            likedbyuserElement)
+                                                                    ? FieldValue
+                                                                        .arrayRemove([
+                                                                        likedbyuserElement
+                                                                      ])
+                                                                    : FieldValue
+                                                                        .arrayUnion([
+                                                                        likedbyuserElement
+                                                                      ]);
+                                                                await listViewPostRecord
+                                                                    .reference
+                                                                    .update({
+                                                                  ...mapToFirestore(
+                                                                    {
+                                                                      'likedbyuser':
+                                                                          likedbyuserUpdate,
+                                                                    },
+                                                                  ),
+                                                                });
+                                                                logFirebaseEvent(
+                                                                    'COMMUNITYToggleIcon_7c96nv49_ON_TOGGLE');
+                                                                if (listViewPostRecord
+                                                                    .likedbyuser
+                                                                    .contains(
+                                                                        currentUserReference)) {
+                                                                  logFirebaseEvent(
+                                                                      'ToggleIcon_backend_call');
+
+                                                                  await listViewPostRecord
+                                                                      .reference
+                                                                      .update({
+                                                                    ...mapToFirestore(
+                                                                      {
+                                                                        'likedbyuser':
+                                                                            FieldValue.arrayRemove([
+                                                                          currentUserReference
+                                                                        ]),
+                                                                      },
+                                                                    ),
+                                                                  });
+                                                                  return;
+                                                                } else {
+                                                                  logFirebaseEvent(
+                                                                      'ToggleIcon_backend_call');
+
+                                                                  await listViewPostRecord
+                                                                      .reference
+                                                                      .update({
+                                                                    ...mapToFirestore(
+                                                                      {
+                                                                        'likedbyuser':
+                                                                            FieldValue.arrayUnion([
+                                                                          currentUserReference
+                                                                        ]),
+                                                                      },
+                                                                    ),
+                                                                  });
+                                                                  logFirebaseEvent(
+                                                                      'ToggleIcon_backend_call');
+
+                                                                  await NotificationuserRecord.createDoc(
+                                                                          listViewPostRecord
+                                                                              .postUser!)
+                                                                      .set(
+                                                                          createNotificationuserRecordData(
+                                                                    post: listViewPostRecord
+                                                                        .reference,
+                                                                    time:
+                                                                        getCurrentTimestamp,
+                                                                    reactiontype:
+                                                                        'liked',
+                                                                    reactionby:
+                                                                        currentUserDisplayName,
+                                                                  ));
+                                                                  return;
+                                                                }
+                                                              },
+                                                              value: listViewPostRecord
+                                                                  .likedbyuser
+                                                                  .contains(
+                                                                      currentUserReference),
+                                                              onIcon: Icon(
+                                                                Icons.favorite,
+                                                                color: Color(
+                                                                    0xDAFF5963),
+                                                                size: 25.0,
+                                                              ),
+                                                              offIcon: Icon(
+                                                                Icons
+                                                                    .favorite_border,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primaryText,
+                                                                size: 25.0,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              listViewPostRecord
+                                                                  .likedbyuser
+                                                                  .length
+                                                                  .toString(),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          16.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child:
+                                                                  FlutterFlowIconButton(
+                                                                borderColor: Colors
+                                                                    .transparent,
+                                                                borderRadius:
+                                                                    20.0,
+                                                                borderWidth:
+                                                                    0.0,
+                                                                buttonSize:
+                                                                    40.0,
+                                                                icon: Icon(
+                                                                  Icons.comment,
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryText,
+                                                                  size: 24.0,
+                                                                ),
+                                                                onPressed:
+                                                                    () async {
+                                                                  logFirebaseEvent(
+                                                                      'COMMUNITYPAGE_PAGE_comment_ICN_ON_TAP');
+                                                                  logFirebaseEvent(
+                                                                      'IconButton_navigate_to');
+
+                                                                  context
+                                                                      .pushNamed(
+                                                                    'post',
+                                                                    queryParameters:
+                                                                        {
+                                                                      'post':
+                                                                          serializeParam(
+                                                                        listViewPostRecord
+                                                                            .reference,
+                                                                        ParamType
+                                                                            .DocumentReference,
+                                                                      ),
+                                                                    }.withoutNulls,
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                            FutureBuilder<int>(
+                                                              future:
+                                                                  queryCommentRecordCount(
+                                                                parent:
+                                                                    listViewPostRecord
+                                                                        .reference,
+                                                              ),
+                                                              builder: (context,
+                                                                  snapshot) {
+                                                                // Customize what your widget looks like when it's loading.
+                                                                if (!snapshot
+                                                                    .hasData) {
+                                                                  return Center(
+                                                                    child:
+                                                                        SizedBox(
+                                                                      width:
+                                                                          50.0,
+                                                                      height:
+                                                                          50.0,
+                                                                      child:
+                                                                          CircularProgressIndicator(
+                                                                        valueColor:
+                                                                            AlwaysStoppedAnimation<Color>(
+                                                                          Color(
+                                                                              0xDAFF5963),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                }
+                                                                int text123Count =
+                                                                    snapshot
+                                                                        .data!;
+                                                                return Text(
+                                                                  text123Count
+                                                                      .toString(),
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium,
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Divider(
+                                                        thickness: 1.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .accent4,
+                                                      ),
+                                                      Divider(
+                                                        thickness: 1.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  16.0, 8.0, 16.0, 0.0),
+                                          child:
+                                              StreamBuilder<List<PostRecord>>(
+                                            stream: queryPostRecord(
+                                              queryBuilder: (postRecord) =>
+                                                  postRecord
+                                                      .where(
+                                                        'post_community',
+                                                        isEqualTo:
+                                                            widget.community,
+                                                      )
+                                                      .where(
+                                                        'communitypost',
+                                                        isEqualTo: true,
+                                                      ),
+                                            ),
+                                            builder: (context, snapshot) {
+                                              // Customize what your widget looks like when it's loading.
+                                              if (!snapshot.hasData) {
+                                                return Center(
+                                                  child: SizedBox(
+                                                    width: 50.0,
+                                                    height: 50.0,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                              Color>(
+                                                        Color(0xDAFF5963),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              List<PostRecord>
+                                                  listViewPostRecordList =
+                                                  snapshot.data!;
+                                              return ListView.builder(
+                                                padding: EdgeInsets.zero,
+                                                shrinkWrap: true,
+                                                scrollDirection: Axis.vertical,
+                                                itemCount:
+                                                    listViewPostRecordList
+                                                        .length,
+                                                itemBuilder:
+                                                    (context, listViewIndex) {
+                                                  final listViewPostRecord =
+                                                      listViewPostRecordList[
+                                                          listViewIndex];
+                                                  return Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    16.0,
+                                                                    0.0,
+                                                                    0.0),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width: 45.0,
+                                                              height: 45.0,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primaryText,
+                                                                image:
+                                                                    DecorationImage(
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  image:
+                                                                      CachedNetworkImageProvider(
+                                                                    listViewPostRecord
+                                                                        .communityimage,
+                                                                  ),
+                                                                ),
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          8.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  InkWell(
+                                                                    splashColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    focusColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    hoverColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    highlightColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    onTap:
+                                                                        () async {
+                                                                      logFirebaseEvent(
+                                                                          'COMMUNITYPAGE_PAGE_Text_f2he1lwd_ON_TAP');
+                                                                      logFirebaseEvent(
+                                                                          'Text_navigate_to');
+
+                                                                      context
+                                                                          .pushNamed(
+                                                                        'Communitypage',
+                                                                        queryParameters:
+                                                                            {
+                                                                          'community':
+                                                                              serializeParam(
+                                                                            listViewPostRecord.postCommunity,
+                                                                            ParamType.DocumentReference,
+                                                                          ),
+                                                                        }.withoutNulls,
+                                                                      );
+                                                                    },
+                                                                    child:
+                                                                        AutoSizeText(
+                                                                      listViewPostRecord
+                                                                          .communityname,
+                                                                      maxLines:
+                                                                          4,
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .titleMedium
+                                                                          .override(
+                                                                            fontFamily:
+                                                                                'Readex Pro',
+                                                                            color:
+                                                                                FlutterFlowTheme.of(context).primaryText,
+                                                                            fontSize:
+                                                                                16.0,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            0.0,
+                                                                            8.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                    child: Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .max,
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Container(
+                                                                          width:
+                                                                              72.0,
+                                                                          height:
+                                                                              20.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            color:
+                                                                                Color(0xDAFF5963),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10.0),
+                                                                          ),
+                                                                          alignment: AlignmentDirectional(
+                                                                              0.00,
+                                                                              0.00),
+                                                                          child:
+                                                                              Text(
+                                                                            listViewPostRecord.posttag,
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                  fontFamily: 'Readex Pro',
+                                                                                  color: Colors.white,
+                                                                                  fontSize: 10.0,
+                                                                                  fontWeight: FontWeight.w300,
+                                                                                ),
+                                                                          ),
+                                                                        ),
+                                                                        Padding(
+                                                                          padding: EdgeInsetsDirectional.fromSTEB(
+                                                                              8.0,
+                                                                              0.0,
+                                                                              0.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                72.0,
+                                                                            height:
+                                                                                20.0,
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: Color(0xFF01080E),
+                                                                              borderRadius: BorderRadius.circular(10.0),
+                                                                              border: Border.all(
+                                                                                color: Color(0xFFF7EFEF),
+                                                                              ),
+                                                                            ),
+                                                                            alignment:
+                                                                                AlignmentDirectional(0.00, 0.00),
+                                                                            child:
+                                                                                Text(
+                                                                              listViewPostRecord.posttype,
+                                                                              textAlign: TextAlign.center,
+                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                                                    fontFamily: 'Readex Pro',
+                                                                                    color: Colors.white,
+                                                                                    fontSize: 10.0,
+                                                                                    fontWeight: FontWeight.w300,
+                                                                                  ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    16.0,
+                                                                    0.0,
+                                                                    16.0),
+                                                        child: InkWell(
+                                                          splashColor: Colors
+                                                              .transparent,
+                                                          focusColor: Colors
+                                                              .transparent,
+                                                          hoverColor: Colors
+                                                              .transparent,
+                                                          highlightColor: Colors
+                                                              .transparent,
+                                                          onTap: () async {
+                                                            logFirebaseEvent(
+                                                                'COMMUNITYPAGE_PAGE_Text_a17l1ahm_ON_TAP');
+                                                            logFirebaseEvent(
+                                                                'Text_navigate_to');
+
+                                                            context.pushNamed(
+                                                              'post',
+                                                              queryParameters: {
+                                                                'post':
+                                                                    serializeParam(
+                                                                  listViewPostRecord
+                                                                      .reference,
+                                                                  ParamType
+                                                                      .DocumentReference,
+                                                                ),
+                                                              }.withoutNulls,
+                                                            );
+                                                          },
+                                                          child: Text(
+                                                            listViewPostRecord
+                                                                .postdescrition
+                                                                .maybeHandleOverflow(
+                                                              maxChars: 250,
+                                                              replacement: '…',
+                                                            ),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Readex Pro',
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w200,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      if (listViewPostRecord
+                                                              .multipleimage
+                                                              .length >=
+                                                          1)
+                                                        ImageshowWidget(
+                                                          key: Key(
+                                                              'Keyw4a_${listViewIndex}_of_${listViewPostRecordList.length}'),
+                                                          parameter1:
+                                                              listViewPostRecord
+                                                                  .multipleimage,
+                                                        ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0.0,
+                                                                    0.0,
+                                                                    0.0,
+                                                                    16.0),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: [
+                                                            ToggleIcon(
+                                                              onPressed:
+                                                                  () async {
+                                                                final likedbyuserElement =
+                                                                    currentUserReference;
+                                                                final likedbyuserUpdate = listViewPostRecord
+                                                                        .likedbyuser
+                                                                        .contains(
+                                                                            likedbyuserElement)
+                                                                    ? FieldValue
+                                                                        .arrayRemove([
+                                                                        likedbyuserElement
+                                                                      ])
+                                                                    : FieldValue
+                                                                        .arrayUnion([
+                                                                        likedbyuserElement
+                                                                      ]);
+                                                                await listViewPostRecord
+                                                                    .reference
+                                                                    .update({
+                                                                  ...mapToFirestore(
+                                                                    {
+                                                                      'likedbyuser':
+                                                                          likedbyuserUpdate,
+                                                                    },
+                                                                  ),
+                                                                });
+                                                                logFirebaseEvent(
+                                                                    'COMMUNITYToggleIcon_rumxcebk_ON_TOGGLE');
+                                                                if (listViewPostRecord
+                                                                    .likedbyuser
+                                                                    .contains(
+                                                                        currentUserReference)) {
+                                                                  logFirebaseEvent(
+                                                                      'ToggleIcon_backend_call');
+
+                                                                  await listViewPostRecord
+                                                                      .reference
+                                                                      .update({
+                                                                    ...mapToFirestore(
+                                                                      {
+                                                                        'likedbyuser':
+                                                                            FieldValue.arrayRemove([
+                                                                          currentUserReference
+                                                                        ]),
+                                                                      },
+                                                                    ),
+                                                                  });
+                                                                  return;
+                                                                } else {
+                                                                  logFirebaseEvent(
+                                                                      'ToggleIcon_backend_call');
+
+                                                                  await listViewPostRecord
+                                                                      .reference
+                                                                      .update({
+                                                                    ...mapToFirestore(
+                                                                      {
+                                                                        'likedbyuser':
+                                                                            FieldValue.arrayUnion([
+                                                                          currentUserReference
+                                                                        ]),
+                                                                      },
+                                                                    ),
+                                                                  });
+                                                                  return;
+                                                                }
+                                                              },
+                                                              value: listViewPostRecord
+                                                                  .likedbyuser
+                                                                  .contains(
+                                                                      currentUserReference),
+                                                              onIcon: Icon(
+                                                                Icons.favorite,
+                                                                color: Color(
+                                                                    0xDAFF5963),
+                                                                size: 25.0,
+                                                              ),
+                                                              offIcon: Icon(
+                                                                Icons
+                                                                    .favorite_border,
+                                                                color: Color(
+                                                                    0xFFF7EFEF),
+                                                                size: 25.0,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              listViewPostRecord
+                                                                  .likedbyuser
+                                                                  .length
+                                                                  .toString(),
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          16.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                              child:
+                                                                  FlutterFlowIconButton(
+                                                                borderColor: Colors
+                                                                    .transparent,
+                                                                borderRadius:
+                                                                    20.0,
+                                                                borderWidth:
+                                                                    0.0,
+                                                                buttonSize:
+                                                                    40.0,
+                                                                icon: Icon(
+                                                                  Icons.comment,
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryText,
+                                                                  size: 24.0,
+                                                                ),
+                                                                onPressed:
+                                                                    () async {
+                                                                  logFirebaseEvent(
+                                                                      'COMMUNITYPAGE_PAGE_comment_ICN_ON_TAP');
+                                                                  logFirebaseEvent(
+                                                                      'IconButton_navigate_to');
+
+                                                                  context
+                                                                      .pushNamed(
+                                                                    'post',
+                                                                    queryParameters:
+                                                                        {
+                                                                      'post':
+                                                                          serializeParam(
+                                                                        listViewPostRecord
+                                                                            .reference,
+                                                                        ParamType
+                                                                            .DocumentReference,
+                                                                      ),
+                                                                    }.withoutNulls,
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                            FutureBuilder<int>(
+                                                              future:
+                                                                  queryCommentRecordCount(
+                                                                parent:
+                                                                    listViewPostRecord
+                                                                        .reference,
+                                                              ),
+                                                              builder: (context,
+                                                                  snapshot) {
+                                                                // Customize what your widget looks like when it's loading.
+                                                                if (!snapshot
+                                                                    .hasData) {
+                                                                  return Center(
+                                                                    child:
+                                                                        SizedBox(
+                                                                      width:
+                                                                          50.0,
+                                                                      height:
+                                                                          50.0,
+                                                                      child:
+                                                                          CircularProgressIndicator(
+                                                                        valueColor:
+                                                                            AlwaysStoppedAnimation<Color>(
+                                                                          Color(
+                                                                              0xDAFF5963),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                }
+                                                                int text123Count =
+                                                                    snapshot
+                                                                        .data!;
+                                                                return Text(
+                                                                  text123Count
+                                                                      .toString(),
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium,
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Divider(
+                                                        thickness: 1.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .accent4,
+                                                      ),
+                                                      Divider(
+                                                        thickness: 1.0,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

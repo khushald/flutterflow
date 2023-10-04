@@ -1,20 +1,45 @@
 {
   "project_info": {
     "project_number": "705115515009",
+    "firebase_url": "https://social-media-6e09e-default-rtdb.firebaseio.com",
     "project_id": "social-media-6e09e",
     "storage_bucket": "social-media-6e09e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:705115515009:android:f792bfebbdbc51cafc0580",
+        "mobilesdk_app_id": "1:705115515009:android:d57bb933c1ae311afc0580",
         "android_client_info": {
-          "package_name": "com.socially"
+          "package_name": "com.flares"
         }
       },
       "oauth_client": [
         {
-          "client_id": "705115515009-e8i104fde240dcurls3e5ja0eimmam5d.apps.googleusercontent.com",
+          "client_id": "705115515009-l4cqrh458rvv9q4d6lqdp81t9htipvrr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flares",
+            "certificate_hash": "f8730093b1b95144721b2cf34d05c3f4c2ef46e7"
+          }
+        },
+        {
+          "client_id": "705115515009-nqpcf7ehcfs0lt3dr36rmjuv17m9ssl4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flares",
+            "certificate_hash": "d6a1d6e4caeed30d5778cd11e1186746dc49d47a"
+          }
+        },
+        {
+          "client_id": "705115515009-ot5ounumiuoef405eao2rdi008gc2nmg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flares",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "705115515009-ke4c6v28d8fsveg1vp20b5pj4urq859v.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -31,10 +56,10 @@
               "client_type": 3
             },
             {
-              "client_id": "705115515009-gafmmo7of5b5sesmvjtr6kve4v937f0b.apps.googleusercontent.com",
+              "client_id": "705115515009-2l4lpj88vc4d58kuijdeajo55d2v5qkb.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.socially"
+                "bundle_id": "com.flares"
               }
             }
           ]

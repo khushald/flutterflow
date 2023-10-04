@@ -3,7 +3,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'signup_model.dart';
@@ -26,8 +25,10 @@ class _SignupWidgetState extends State<SignupWidget> {
     super.initState();
     _model = createModel(context, () => SignupModel());
 
-    _model.textController1 ??= TextEditingController();
-    _model.textController2 ??= TextEditingController();
+    logFirebaseEvent('screen_view', parameters: {'screen_name': 'Signup'});
+    _model.emailTextController ??= TextEditingController();
+    _model.passwordTextController ??= TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
@@ -42,7 +43,9 @@ class _SignupWidgetState extends State<SignupWidget> {
     context.watch<FFAppState>();
 
     return GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
+      onTap: () => _model.unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+          : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Color(0xFF01080E),
@@ -50,26 +53,25 @@ class _SignupWidgetState extends State<SignupWidget> {
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: Color(0xFF01080E),
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: Image.asset(
-                'assets/images/images_(1).jpeg',
-              ).image,
+            gradient: LinearGradient(
+              colors: [Color(0xC9010912), FlutterFlowTheme.of(context).error],
+              stops: [0.0, 1.0],
+              begin: AlignmentDirectional(0.0, -1.0),
+              end: AlignmentDirectional(0, 1.0),
             ),
           ),
           child: Align(
-            alignment: AlignmentDirectional(0.0, 0.0),
+            alignment: AlignmentDirectional(0.00, 0.00),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Log in',
+                  'Sign up',
                   style: FlutterFlowTheme.of(context).headlineMedium,
                 ),
                 Align(
-                  alignment: AlignmentDirectional(1.0, -1.0),
+                  alignment: AlignmentDirectional(1.00, -1.00),
                   child: Padding(
                     padding:
                         EdgeInsetsDirectional.fromSTEB(0.0, 50.0, 0.0, 0.0),
@@ -84,12 +86,12 @@ class _SignupWidgetState extends State<SignupWidget> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Align(
-                                alignment: AlignmentDirectional(0.0, 0.0),
+                                alignment: AlignmentDirectional(0.00, 0.00),
                                 child: Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       10.0, 0.0, 0.0, 10.0),
                                   child: Text(
-                                    'username ',
+                                    'Email addresss',
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,
                                   ),
@@ -105,11 +107,11 @@ class _SignupWidgetState extends State<SignupWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       8.0, 0.0, 8.0, 0.0),
                                   child: TextFormField(
-                                    controller: _model.textController1,
+                                    controller: _model.emailTextController,
                                     autofocus: true,
                                     obscureText: false,
                                     decoration: InputDecoration(
-                                      labelText: 'username',
+                                      labelText: 'email address',
                                       labelStyle: FlutterFlowTheme.of(context)
                                           .labelMedium,
                                       hintStyle: FlutterFlowTheme.of(context)
@@ -117,7 +119,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                       enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
                                           color: FlutterFlowTheme.of(context)
-                                              .alternate,
+                                              .primaryBtnText,
                                           width: 1.0,
                                         ),
                                         borderRadius:
@@ -157,7 +159,8 @@ class _SignupWidgetState extends State<SignupWidget> {
                                           fontFamily: 'Readex Pro',
                                           fontWeight: FontWeight.w200,
                                         ),
-                                    validator: _model.textController1Validator
+                                    validator: _model
+                                        .emailTextControllerValidator
                                         .asValidator(context),
                                   ),
                                 ),
@@ -171,7 +174,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     10.0, 20.0, 0.0, 10.0),
                                 child: Text(
-                                  'Hello World',
+                                  'Password',
                                   style:
                                       FlutterFlowTheme.of(context).bodyMedium,
                                 ),
@@ -186,7 +189,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       8.0, 0.0, 8.0, 0.0),
                                   child: TextFormField(
-                                    controller: _model.textController2,
+                                    controller: _model.passwordTextController,
                                     autofocus: true,
                                     obscureText: !_model.passwordVisibility,
                                     decoration: InputDecoration(
@@ -196,7 +199,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                       enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
                                           color: FlutterFlowTheme.of(context)
-                                              .alternate,
+                                              .primaryBtnText,
                                           width: 1.0,
                                         ),
                                         borderRadius:
@@ -246,7 +249,8 @@ class _SignupWidgetState extends State<SignupWidget> {
                                     ),
                                     style:
                                         FlutterFlowTheme.of(context).bodyMedium,
-                                    validator: _model.textController2Validator
+                                    validator: _model
+                                        .passwordTextControllerValidator
                                         .asValidator(context),
                                   ),
                                 ),
@@ -267,10 +271,27 @@ class _SignupWidgetState extends State<SignupWidget> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
                         child: FFButtonWidget(
-                          onPressed: () {
-                            print('Button pressed ...');
+                          onPressed: () async {
+                            logFirebaseEvent('SIGNUP_PAGE_SIGN_UP_BTN_ON_TAP');
+                            logFirebaseEvent('Button_auth');
+                            GoRouter.of(context).prepareAuthEvent();
+
+                            final user =
+                                await authManager.createAccountWithEmail(
+                              context,
+                              _model.emailTextController.text,
+                              _model.passwordTextController.text,
+                            );
+                            if (user == null) {
+                              return;
+                            }
+
+                            logFirebaseEvent('Button_navigate_to');
+
+                            context.goNamedAuth(
+                                'createprofile', context.mounted);
                           },
-                          text: 'sign in',
+                          text: 'Sign up',
                           options: FFButtonOptions(
                             width: 184.0,
                             height: 40.0,
@@ -278,7 +299,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                 24.0, 0.0, 24.0, 0.0),
                             iconPadding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 0.0, 0.0),
-                            color: FlutterFlowTheme.of(context).primary,
+                            color: Color(0xDAFF5963),
                             textStyle: FlutterFlowTheme.of(context)
                                 .titleSmall
                                 .override(
@@ -287,7 +308,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                                 ),
                             elevation: 3.0,
                             borderSide: BorderSide(
-                              color: Colors.transparent,
+                              color: Color(0xC9010912),
                               width: 1.0,
                             ),
                             borderRadius: BorderRadius.circular(8.0),
@@ -297,66 +318,81 @@ class _SignupWidgetState extends State<SignupWidget> {
                       Padding(
                         padding:
                             EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-                        child: Container(
-                          width: 179.0,
-                          height: 40.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).primary,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Align(
-                            alignment: AlignmentDirectional(0.0, 0.0),
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                GoRouter.of(context).prepareAuthEvent();
-                                final user =
-                                    await authManager.signInWithGoogle(context);
-                                if (user == null) {
-                                  return;
-                                }
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            logFirebaseEvent('SIGNUP_PAGE_GOOGLE_BTN_ON_TAP');
+                            logFirebaseEvent('Button_auth');
+                            GoRouter.of(context).prepareAuthEvent();
+                            final user =
+                                await authManager.signInWithGoogle(context);
+                            if (user == null) {
+                              return;
+                            }
+                            logFirebaseEvent('Button_navigate_to');
 
-                                context.pushNamedAuth(
-                                    'createprofile', context.mounted);
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Align(
-                                    alignment: AlignmentDirectional(-1.0, 0.0),
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          45.0, 0.0, 0.0, 0.0),
-                                      child: FaIcon(
-                                        FontAwesomeIcons.google,
-                                        color: Color(0xFFF7EFEF),
-                                        size: 24.0,
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: AlignmentDirectional(0.0, 0.0),
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          10.0, 0.0, 0.0, 0.0),
-                                      child: Text(
-                                        'google',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            context.goNamedAuth(
+                                'createprofile', context.mounted);
+                          },
+                          text: 'Google',
+                          options: FFButtonOptions(
+                            width: 184.0,
+                            height: 40.0,
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                24.0, 0.0, 24.0, 0.0),
+                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 0.0),
+                            color: Color(0xDAFF5963),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: 'Readex Pro',
+                                  color: Colors.white,
+                                ),
+                            elevation: 3.0,
+                            borderSide: BorderSide(
+                              color: Color(0xC9010912),
+                              width: 1.0,
                             ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
+                        child: FFButtonWidget(
+                          onPressed: () async {
+                            logFirebaseEvent('SIGNUP_PAGE_MOBILE_BTN_ON_TAP');
+                            logFirebaseEvent('Button_navigate_to');
+
+                            context.pushNamed('Robin3PhoneAuth');
+                          },
+                          text: 'Mobile',
+                          options: FFButtonOptions(
+                            width: 184.0,
+                            height: 40.0,
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                24.0, 0.0, 24.0, 0.0),
+                            iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 0.0, 0.0, 0.0),
+                            color: Color(0xDAFF5963),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  fontFamily: 'Readex Pro',
+                                  color: Colors.white,
+                                ),
+                            elevation: 3.0,
+                            borderSide: BorderSide(
+                              color: Color(0xC9010912),
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
                       ),
                       Align(
-                        alignment: AlignmentDirectional(0.0, 1.0),
+                        alignment: AlignmentDirectional(0.00, 1.00),
                         child: Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(
                               0.0, 10.0, 0.0, 0.0),
@@ -371,16 +407,28 @@ class _SignupWidgetState extends State<SignupWidget> {
                               Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     5.0, 0.0, 0.0, 0.0),
-                                child: SelectionArea(
-                                    child: Text(
-                                  'sign in',
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        fontFamily: 'Readex Pro',
-                                        color: Color(0xDAFF5963),
-                                      ),
-                                )),
+                                child: InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    logFirebaseEvent(
+                                        'SIGNUP_PAGE_Text_xehbn4ge_ON_TAP');
+                                    logFirebaseEvent('Text_navigate_to');
+
+                                    context.pushNamed('Login');
+                                  },
+                                  child: Text(
+                                    'sign in',
+                                    style: FlutterFlowTheme.of(context)
+                                        .bodyMedium
+                                        .override(
+                                          fontFamily: 'Readex Pro',
+                                          color: Color(0xC9010912),
+                                        ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

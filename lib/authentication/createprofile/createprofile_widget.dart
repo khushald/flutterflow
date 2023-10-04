@@ -27,9 +27,13 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
     super.initState();
     _model = createModel(context, () => CreateprofileModel());
 
-    _model.yourNameController1 ??= TextEditingController();
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'createprofile'});
+    _model.yourNameController1 ??=
+        TextEditingController(text: currentUserDisplayName);
     _model.yourNameController2 ??= TextEditingController();
     _model.myBioController ??= TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
@@ -43,21 +47,20 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return Scaffold(
-      key: scaffoldKey,
-      backgroundColor: Color(0xFF01080E),
-      body: SafeArea(
-        top: true,
-        child: Container(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: Color(0xFF01080E),
+        body: Container(
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: Color(0xFF01080E),
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: Image.asset(
-                'assets/images/images_(1).jpeg',
-              ).image,
+            gradient: LinearGradient(
+              colors: [Color(0xC9010912), FlutterFlowTheme.of(context).error],
+              stops: [0.0, 1.0],
+              begin: AlignmentDirectional(0.0, -1.0),
+              end: AlignmentDirectional(0, 1.0),
             ),
           ),
           child: Padding(
@@ -72,60 +75,67 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                     'Add your name and bio',
                     style: FlutterFlowTheme.of(context).headlineMedium.override(
                           fontFamily: 'Roboto',
+                          color: Colors.white,
                         ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 16.0),
-                  child: Container(
-                    width: 300.0,
-                    child: TextFormField(
-                      controller: _model.yourNameController1,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        labelText: 'FIrst name',
-                        labelStyle:
-                            FlutterFlowTheme.of(context).bodySmall.override(
+                  child: AuthUserStreamWidget(
+                    builder: (context) => Container(
+                      width: 300.0,
+                      child: TextFormField(
+                        controller: _model.yourNameController1,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          labelStyle:
+                              FlutterFlowTheme.of(context).bodySmall.override(
+                                    fontFamily: 'Readex Pro',
+                                    color: Color(0xFFF7EFEF),
+                                  ),
+                          hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0xFFF7EFEF),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0x00000000),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          filled: true,
+                          contentPadding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 24.0, 0.0, 24.0),
+                        ),
+                        style:
+                            FlutterFlowTheme.of(context).labelMedium.override(
                                   fontFamily: 'Readex Pro',
-                                  color: Color(0xFFF7EFEF),
+                                  color: Colors.white,
                                 ),
-                        hintStyle: FlutterFlowTheme.of(context).bodySmall,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0xFFF7EFEF),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0x00000000),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0x00000000),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0x00000000),
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        filled: true,
-                        contentPadding: EdgeInsetsDirectional.fromSTEB(
-                            20.0, 24.0, 0.0, 24.0),
+                        maxLines: null,
+                        validator: _model.yourNameController1Validator
+                            .asValidator(context),
                       ),
-                      style: FlutterFlowTheme.of(context).labelMedium,
-                      maxLines: null,
-                      validator: _model.yourNameController1Validator
-                          .asValidator(context),
                     ),
                   ),
                 ),
@@ -137,8 +147,7 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                       controller: _model.yourNameController2,
                       obscureText: false,
                       decoration: InputDecoration(
-                        labelText:
-                            'one line description eg product | startup | delhi',
+                        labelText: 'which colleg / company eg IITR 22 | Flares',
                         labelStyle:
                             FlutterFlowTheme.of(context).bodySmall.override(
                                   fontFamily: 'Readex Pro',
@@ -177,7 +186,10 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                         contentPadding: EdgeInsetsDirectional.fromSTEB(
                             20.0, 24.0, 0.0, 24.0),
                       ),
-                      style: FlutterFlowTheme.of(context).labelMedium,
+                      style: FlutterFlowTheme.of(context).labelMedium.override(
+                            fontFamily: 'Readex Pro',
+                            color: Colors.white,
+                          ),
                       maxLines: null,
                       validator: _model.yourNameController2Validator
                           .asValidator(context),
@@ -193,12 +205,15 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                       obscureText: false,
                       decoration: InputDecoration(
                         labelStyle: FlutterFlowTheme.of(context).bodySmall,
-                        hintText: 'Your bio',
-                        hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                        hintText: 'Tell us about Yourself',
+                        hintStyle:
+                            FlutterFlowTheme.of(context).bodySmall.override(
+                                  fontFamily: 'Readex Pro',
+                                  color: Colors.white,
+                                ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color:
-                                FlutterFlowTheme.of(context).primaryBackground,
+                            color: Colors.white,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(8.0),
@@ -228,7 +243,10 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                         contentPadding: EdgeInsetsDirectional.fromSTEB(
                             20.0, 24.0, 0.0, 24.0),
                       ),
-                      style: FlutterFlowTheme.of(context).bodyMedium,
+                      style: FlutterFlowTheme.of(context).bodyMedium.override(
+                            fontFamily: 'Readex Pro',
+                            color: Colors.white,
+                          ),
                       textAlign: TextAlign.start,
                       maxLines: 3,
                       validator:
@@ -237,20 +255,31 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                   ),
                 ),
                 Align(
-                  alignment: AlignmentDirectional(0.0, 0.05),
+                  alignment: AlignmentDirectional(0.00, 0.05),
                   child: Padding(
                     padding:
                         EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
                     child: FFButtonWidget(
                       onPressed: () async {
-                        await currentUserReference!
-                            .update(createUserProfileRecordData(
-                          bio: _model.myBioController.text,
-                          useroneline: _model.yourNameController2.text,
-                          displayName: _model.yourNameController1.text,
-                        ));
+                        logFirebaseEvent('CREATEPROFILE_PAGE_NEXT_BTN_ON_TAP');
+                        logFirebaseEvent('Button_backend_call');
 
-                        context.pushNamed('createprofilleimage');
+                        await currentUserReference!.update({
+                          ...createUserProfileRecordData(
+                            bio: _model.myBioController.text,
+                            useroneline: _model.yourNameController2.text,
+                            displayName: _model.yourNameController1.text,
+                          ),
+                          ...mapToFirestore(
+                            {
+                              'friends':
+                                  FieldValue.arrayUnion([currentUserReference]),
+                            },
+                          ),
+                        });
+                        logFirebaseEvent('Button_navigate_to');
+
+                        context.pushNamed('profileimage');
                       },
                       text: 'Next',
                       options: FFButtonOptions(
@@ -270,7 +299,7 @@ class _CreateprofileWidgetState extends State<CreateprofileWidget> {
                             ),
                         elevation: 2.0,
                         borderSide: BorderSide(
-                          color: Colors.transparent,
+                          color: Color(0xFF01080E),
                           width: 1.0,
                         ),
                         borderRadius: BorderRadius.circular(50.0),

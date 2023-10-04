@@ -26,6 +26,10 @@ class _AddcommunityWidgetState extends State<AddcommunityWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AddcommunityModel());
+
+    logFirebaseEvent('screen_view',
+        parameters: {'screen_name': 'addcommunity'});
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
@@ -39,282 +43,221 @@ class _AddcommunityWidgetState extends State<AddcommunityWidget> {
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return StreamBuilder<List<CommunityjoinedRecord>>(
-      stream: queryCommunityjoinedRecord(
-        parent: currentUserReference,
-      ),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: Color(0xFF01080E),
-            body: Center(
-              child: SizedBox(
-                width: 50.0,
-                height: 50.0,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Color(0xDAFF5963),
-                  ),
+    return GestureDetector(
+      onTap: () => _model.unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+          : FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: Color(0xFF01080E),
+        appBar: AppBar(
+          backgroundColor: Color(0xFF01080E),
+          automaticallyImplyLeading: true,
+          title: Text(
+            'Select communties to join',
+            style: FlutterFlowTheme.of(context).bodyMedium.override(
+                  fontFamily: 'Readex Pro',
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
                 ),
+          ),
+          actions: [],
+          centerTitle: true,
+          elevation: 4.0,
+        ),
+        body: SafeArea(
+          top: true,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF01080E), Color(0xDAFF5963)],
+                stops: [0.0, 1.0],
+                begin: AlignmentDirectional(0.03, -1.0),
+                end: AlignmentDirectional(-0.03, 1.0),
               ),
             ),
-          );
-        }
-        List<CommunityjoinedRecord> addcommunityCommunityjoinedRecordList =
-            snapshot.data!;
-        return GestureDetector(
-          onTap: () => FocusScope.of(context).requestFocus(_model.unfocusNode),
-          child: Scaffold(
-            key: scaffoldKey,
-            backgroundColor: Color(0xFF01080E),
-            appBar: AppBar(
-              backgroundColor: Color(0xFF01080E),
-              automaticallyImplyLeading: true,
-              title: Text(
-                'Select communties to join',
-                style: FlutterFlowTheme.of(context).bodyMedium.override(
-                      fontFamily: 'Readex Pro',
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              actions: [],
-              centerTitle: true,
-              elevation: 4.0,
-            ),
-            body: SafeArea(
-              top: true,
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: Color(0xFF01080E),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: Image.asset(
-                      'assets/images/images_(1).jpeg',
-                    ).image,
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            16.0, 0.0, 16.0, 0.0),
-                        child: StreamBuilder<List<CommunitiesRecord>>(
-                          stream: queryCommunitiesRecord(),
-                          builder: (context, snapshot) {
-                            // Customize what your widget looks like when it's loading.
-                            if (!snapshot.hasData) {
-                              return Center(
-                                child: SizedBox(
-                                  width: 50.0,
-                                  height: 50.0,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Color(0xDAFF5963),
-                                    ),
-                                  ),
+            child: Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
+                    child: StreamBuilder<List<CommunitiesRecord>>(
+                      stream: queryCommunitiesRecord(),
+                      builder: (context, snapshot) {
+                        // Customize what your widget looks like when it's loading.
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: SizedBox(
+                              width: 50.0,
+                              height: 50.0,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xDAFF5963),
                                 ),
-                              );
-                            }
-                            List<CommunitiesRecord>
-                                listViewCommunitiesRecordList = snapshot.data!;
-                            return ListView.builder(
-                              padding: EdgeInsets.zero,
-                              primary: false,
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: listViewCommunitiesRecordList.length,
-                              itemBuilder: (context, listViewIndex) {
-                                final listViewCommunitiesRecord =
-                                    listViewCommunitiesRecordList[
-                                        listViewIndex];
-                                return Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 16.0, 0.0, 16.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            width: 45.0,
-                                            height: 45.0,
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                              image: DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: Image.network(
-                                                  listViewCommunitiesRecord
-                                                      .communityimage,
-                                                ).image,
-                                              ),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    8.0, 0.0, 80.0, 0.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  listViewCommunitiesRecord
-                                                      .communityname
-                                                      .maybeHandleOverflow(
-                                                          maxChars: 16),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            'Readex Pro',
-                                                        fontSize: 16.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 8.0, 0.0, 0.0),
-                                                  child: Text(
-                                                    listViewCommunitiesRecord
-                                                        .communityoneline,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              'Readex Pro',
-                                                          fontSize: 14.0,
-                                                          fontWeight:
-                                                              FontWeight.w300,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Theme(
-                                      data: ThemeData(
-                                        checkboxTheme: CheckboxThemeData(
-                                          visualDensity: VisualDensity.compact,
-                                          materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                          ),
-                                        ),
-                                        unselectedWidgetColor:
-                                            FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                      ),
-                                      child: Checkbox(
-                                        value: _model.checkboxValueMap[
-                                            listViewCommunitiesRecord] ??= true,
-                                        onChanged: (newValue) async {
-                                          setState(() => _model
-                                                      .checkboxValueMap[
-                                                  listViewCommunitiesRecord] =
-                                              newValue!);
-                                          if (newValue!) {
-                                            await CommunityjoinedRecord
-                                                    .createDoc(
-                                                        currentUserReference!)
-                                                .set(
-                                                    createCommunityjoinedRecordData(
-                                              communityname:
-                                                  listViewCommunitiesRecord
-                                                      .communityname,
-                                              communityrefer:
-                                                  listViewCommunitiesRecord
-                                                      .reference,
-                                            ));
-                                          }
+                              ),
+                            ),
+                          );
+                        }
+                        List<CommunitiesRecord> listViewCommunitiesRecordList =
+                            snapshot.data!;
+                        return ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          itemCount: listViewCommunitiesRecordList.length,
+                          itemBuilder: (context, listViewIndex) {
+                            final listViewCommunitiesRecord =
+                                listViewCommunitiesRecordList[listViewIndex];
+                            return Theme(
+                              data: ThemeData(
+                                checkboxTheme: CheckboxThemeData(
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                unselectedWidgetColor:
+                                    FlutterFlowTheme.of(context).secondaryText,
+                              ),
+                              child: CheckboxListTile(
+                                value: _model.checkboxListTileValueMap[
+                                    listViewCommunitiesRecord] ??= false,
+                                onChanged: (newValue) async {
+                                  setState(() => _model
+                                          .checkboxListTileValueMap[
+                                      listViewCommunitiesRecord] = newValue!);
+                                  if (newValue!) {
+                                    logFirebaseEvent(
+                                        'ADDCOMMUNITY_CheckboxListTile_ab73hwfz_O');
+                                    logFirebaseEvent(
+                                        'CheckboxListTile_backend_call');
+
+                                    await currentUserReference!.update({
+                                      ...mapToFirestore(
+                                        {
+                                          'communityjoined':
+                                              FieldValue.arrayUnion([
+                                            listViewCommunitiesRecord.reference
+                                          ]),
                                         },
-                                        activeColor:
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                        checkColor:
-                                            FlutterFlowTheme.of(context).info,
                                       ),
-                                    ),
-                                  ],
-                                );
-                              },
+                                    });
+                                    logFirebaseEvent(
+                                        'CheckboxListTile_backend_call');
+
+                                    await listViewCommunitiesRecord.reference
+                                        .update({
+                                      ...mapToFirestore(
+                                        {
+                                          'members': FieldValue.arrayUnion(
+                                              [currentUserReference]),
+                                        },
+                                      ),
+                                    });
+                                  } else {
+                                    logFirebaseEvent(
+                                        'ADDCOMMUNITY_CheckboxListTile_ab73hwfz_O');
+                                    logFirebaseEvent(
+                                        'CheckboxListTile_backend_call');
+
+                                    await currentUserReference!.update({
+                                      ...mapToFirestore(
+                                        {
+                                          'communityjoined':
+                                              FieldValue.arrayRemove([
+                                            listViewCommunitiesRecord.reference
+                                          ]),
+                                        },
+                                      ),
+                                    });
+                                    logFirebaseEvent(
+                                        'CheckboxListTile_backend_call');
+
+                                    await listViewCommunitiesRecord.reference
+                                        .update({
+                                      ...mapToFirestore(
+                                        {
+                                          'members': FieldValue.arrayRemove(
+                                              [currentUserReference]),
+                                        },
+                                      ),
+                                    });
+                                  }
+                                },
+                                title: Text(
+                                  listViewCommunitiesRecord.communityname,
+                                  style:
+                                      FlutterFlowTheme.of(context).titleLarge,
+                                ),
+                                subtitle: Text(
+                                  listViewCommunitiesRecord.communityoneline,
+                                  style:
+                                      FlutterFlowTheme.of(context).labelMedium,
+                                ),
+                                tileColor: FlutterFlowTheme.of(context)
+                                    .secondaryBackground,
+                                activeColor:
+                                    FlutterFlowTheme.of(context).primary,
+                                checkColor: FlutterFlowTheme.of(context).info,
+                                dense: false,
+                                controlAffinity:
+                                    ListTileControlAffinity.trailing,
+                              ),
                             );
                           },
-                        ),
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional(0.0, 0.05),
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              0.0, 24.0, 0.0, 64.0),
-                          child: FFButtonWidget(
-                            onPressed: () async {
-                              await currentUserReference!
-                                  .update(createUserProfileRecordData(
-                                createdTime: getCurrentTimestamp,
-                              ));
-                            },
-                            text: 'Next',
-                            options: FFButtonOptions(
-                              width: 240.0,
-                              height: 50.0,
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              color: Color(0xDAFF5963),
-                              textStyle: FlutterFlowTheme.of(context)
-                                  .titleMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryBtnText,
-                                  ),
-                              elevation: 2.0,
-                              borderSide: BorderSide(
-                                color: Colors.transparent,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(50.0),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                ),
+                  Align(
+                    alignment: AlignmentDirectional(0.00, 0.05),
+                    child: Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 64.0),
+                      child: FFButtonWidget(
+                        onPressed: () async {
+                          logFirebaseEvent('ADDCOMMUNITY_PAGE_NEXT_BTN_ON_TAP');
+                          logFirebaseEvent('Button_navigate_to');
+
+                          context.goNamed('HomePage');
+                        },
+                        text: 'Next',
+                        options: FFButtonOptions(
+                          width: 240.0,
+                          height: 50.0,
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          iconPadding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 0.0),
+                          color: Color(0xDAFF5963),
+                          textStyle: FlutterFlowTheme.of(context)
+                              .titleMedium
+                              .override(
+                                fontFamily: 'Readex Pro',
+                                color:
+                                    FlutterFlowTheme.of(context).primaryBtnText,
+                              ),
+                          elevation: 2.0,
+                          borderSide: BorderSide(
+                            color: Color(0xFF01080E),
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(50.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

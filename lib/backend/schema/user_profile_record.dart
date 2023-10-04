@@ -36,11 +36,6 @@ class UserProfileRecord extends FirestoreRecord {
   DateTime? get createdTime => _createdTime;
   bool hasCreatedTime() => _createdTime != null;
 
-  // "phone_number" field.
-  String? _phoneNumber;
-  String get phoneNumber => _phoneNumber ?? '';
-  bool hasPhoneNumber() => _phoneNumber != null;
-
   // "Bio" field.
   String? _bio;
   String get bio => _bio ?? '';
@@ -56,11 +51,6 @@ class UserProfileRecord extends FirestoreRecord {
   String get useroneline => _useroneline ?? '';
   bool hasUseroneline() => _useroneline != null;
 
-  // "community_owned" field.
-  DocumentReference? _communityOwned;
-  DocumentReference? get communityOwned => _communityOwned;
-  bool hasCommunityOwned() => _communityOwned != null;
-
   // "tags" field.
   List<String>? _tags;
   List<String> get tags => _tags ?? const [];
@@ -71,18 +61,53 @@ class UserProfileRecord extends FirestoreRecord {
   String get displayName => _displayName ?? '';
   bool hasDisplayName() => _displayName != null;
 
+  // "communityjoined" field.
+  List<DocumentReference>? _communityjoined;
+  List<DocumentReference> get communityjoined => _communityjoined ?? const [];
+  bool hasCommunityjoined() => _communityjoined != null;
+
+  // "friends" field.
+  List<DocumentReference>? _friends;
+  List<DocumentReference> get friends => _friends ?? const [];
+  bool hasFriends() => _friends != null;
+
+  // "phone_number" field.
+  String? _phoneNumber;
+  String get phoneNumber => _phoneNumber ?? '';
+  bool hasPhoneNumber() => _phoneNumber != null;
+
+  // "communityownedlist" field.
+  List<DocumentReference>? _communityownedlist;
+  List<DocumentReference> get communityownedlist =>
+      _communityownedlist ?? const [];
+  bool hasCommunityownedlist() => _communityownedlist != null;
+
+  // "followedby" field.
+  List<DocumentReference>? _followedby;
+  List<DocumentReference> get followedby => _followedby ?? const [];
+  bool hasFollowedby() => _followedby != null;
+
+  // "moderator" field.
+  List<DocumentReference>? _moderator;
+  List<DocumentReference> get moderator => _moderator ?? const [];
+  bool hasModerator() => _moderator != null;
+
   void _initializeFields() {
     _email = snapshotData['email'] as String?;
     _photoUrl = snapshotData['photo_url'] as String?;
     _uid = snapshotData['uid'] as String?;
     _createdTime = snapshotData['created_time'] as DateTime?;
-    _phoneNumber = snapshotData['phone_number'] as String?;
     _bio = snapshotData['Bio'] as String?;
     _coveerimage = snapshotData['coveerimage'] as String?;
     _useroneline = snapshotData['useroneline'] as String?;
-    _communityOwned = snapshotData['community_owned'] as DocumentReference?;
     _tags = getDataList(snapshotData['tags']);
     _displayName = snapshotData['display_name'] as String?;
+    _communityjoined = getDataList(snapshotData['communityjoined']);
+    _friends = getDataList(snapshotData['friends']);
+    _phoneNumber = snapshotData['phone_number'] as String?;
+    _communityownedlist = getDataList(snapshotData['communityownedlist']);
+    _followedby = getDataList(snapshotData['followedby']);
+    _moderator = getDataList(snapshotData['moderator']);
   }
 
   static CollectionReference get collection =>
@@ -124,12 +149,11 @@ Map<String, dynamic> createUserProfileRecordData({
   String? photoUrl,
   String? uid,
   DateTime? createdTime,
-  String? phoneNumber,
   String? bio,
   String? coveerimage,
   String? useroneline,
-  DocumentReference? communityOwned,
   String? displayName,
+  String? phoneNumber,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -137,12 +161,11 @@ Map<String, dynamic> createUserProfileRecordData({
       'photo_url': photoUrl,
       'uid': uid,
       'created_time': createdTime,
-      'phone_number': phoneNumber,
       'Bio': bio,
       'coveerimage': coveerimage,
       'useroneline': useroneline,
-      'community_owned': communityOwned,
       'display_name': displayName,
+      'phone_number': phoneNumber,
     }.withoutNulls,
   );
 
@@ -159,13 +182,17 @@ class UserProfileRecordDocumentEquality implements Equality<UserProfileRecord> {
         e1?.photoUrl == e2?.photoUrl &&
         e1?.uid == e2?.uid &&
         e1?.createdTime == e2?.createdTime &&
-        e1?.phoneNumber == e2?.phoneNumber &&
         e1?.bio == e2?.bio &&
         e1?.coveerimage == e2?.coveerimage &&
         e1?.useroneline == e2?.useroneline &&
-        e1?.communityOwned == e2?.communityOwned &&
         listEquality.equals(e1?.tags, e2?.tags) &&
-        e1?.displayName == e2?.displayName;
+        e1?.displayName == e2?.displayName &&
+        listEquality.equals(e1?.communityjoined, e2?.communityjoined) &&
+        listEquality.equals(e1?.friends, e2?.friends) &&
+        e1?.phoneNumber == e2?.phoneNumber &&
+        listEquality.equals(e1?.communityownedlist, e2?.communityownedlist) &&
+        listEquality.equals(e1?.followedby, e2?.followedby) &&
+        listEquality.equals(e1?.moderator, e2?.moderator);
   }
 
   @override
@@ -174,13 +201,17 @@ class UserProfileRecordDocumentEquality implements Equality<UserProfileRecord> {
         e?.photoUrl,
         e?.uid,
         e?.createdTime,
-        e?.phoneNumber,
         e?.bio,
         e?.coveerimage,
         e?.useroneline,
-        e?.communityOwned,
         e?.tags,
-        e?.displayName
+        e?.displayName,
+        e?.communityjoined,
+        e?.friends,
+        e?.phoneNumber,
+        e?.communityownedlist,
+        e?.followedby,
+        e?.moderator
       ]);
 
   @override

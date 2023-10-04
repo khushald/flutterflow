@@ -71,6 +71,41 @@ class PostRecord extends FirestoreRecord {
   List<DocumentReference> get likedbyuser => _likedbyuser ?? const [];
   bool hasLikedbyuser() => _likedbyuser != null;
 
+  // "uid" field.
+  String? _uid;
+  String get uid => _uid ?? '';
+  bool hasUid() => _uid != null;
+
+  // "communitypost" field.
+  bool? _communitypost;
+  bool get communitypost => _communitypost ?? false;
+  bool hasCommunitypost() => _communitypost != null;
+
+  // "posttime" field.
+  DateTime? _posttime;
+  DateTime? get posttime => _posttime;
+  bool hasPosttime() => _posttime != null;
+
+  // "sharedby" field.
+  List<DocumentReference>? _sharedby;
+  List<DocumentReference> get sharedby => _sharedby ?? const [];
+  bool hasSharedby() => _sharedby != null;
+
+  // "commentby" field.
+  List<DocumentReference>? _commentby;
+  List<DocumentReference> get commentby => _commentby ?? const [];
+  bool hasCommentby() => _commentby != null;
+
+  // "multipleimage" field.
+  List<String>? _multipleimage;
+  List<String> get multipleimage => _multipleimage ?? const [];
+  bool hasMultipleimage() => _multipleimage != null;
+
+  // "comment" field.
+  List<String>? _comment;
+  List<String> get comment => _comment ?? const [];
+  bool hasComment() => _comment != null;
+
   void _initializeFields() {
     _postdescrition = snapshotData['postdescrition'] as String?;
     _postimage = snapshotData['postimage'] as String?;
@@ -83,6 +118,13 @@ class PostRecord extends FirestoreRecord {
     _username = snapshotData['username'] as String?;
     _userimage = snapshotData['userimage'] as String?;
     _likedbyuser = getDataList(snapshotData['likedbyuser']);
+    _uid = snapshotData['uid'] as String?;
+    _communitypost = snapshotData['communitypost'] as bool?;
+    _posttime = snapshotData['posttime'] as DateTime?;
+    _sharedby = getDataList(snapshotData['sharedby']);
+    _commentby = getDataList(snapshotData['commentby']);
+    _multipleimage = getDataList(snapshotData['multipleimage']);
+    _comment = getDataList(snapshotData['comment']);
   }
 
   static CollectionReference get collection =>
@@ -129,6 +171,9 @@ Map<String, dynamic> createPostRecordData({
   String? communityimage,
   String? username,
   String? userimage,
+  String? uid,
+  bool? communitypost,
+  DateTime? posttime,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -142,6 +187,9 @@ Map<String, dynamic> createPostRecordData({
       'communityimage': communityimage,
       'username': username,
       'userimage': userimage,
+      'uid': uid,
+      'communitypost': communitypost,
+      'posttime': posttime,
     }.withoutNulls,
   );
 
@@ -164,7 +212,14 @@ class PostRecordDocumentEquality implements Equality<PostRecord> {
         e1?.communityimage == e2?.communityimage &&
         e1?.username == e2?.username &&
         e1?.userimage == e2?.userimage &&
-        listEquality.equals(e1?.likedbyuser, e2?.likedbyuser);
+        listEquality.equals(e1?.likedbyuser, e2?.likedbyuser) &&
+        e1?.uid == e2?.uid &&
+        e1?.communitypost == e2?.communitypost &&
+        e1?.posttime == e2?.posttime &&
+        listEquality.equals(e1?.sharedby, e2?.sharedby) &&
+        listEquality.equals(e1?.commentby, e2?.commentby) &&
+        listEquality.equals(e1?.multipleimage, e2?.multipleimage) &&
+        listEquality.equals(e1?.comment, e2?.comment);
   }
 
   @override
@@ -179,7 +234,14 @@ class PostRecordDocumentEquality implements Equality<PostRecord> {
         e?.communityimage,
         e?.username,
         e?.userimage,
-        e?.likedbyuser
+        e?.likedbyuser,
+        e?.uid,
+        e?.communitypost,
+        e?.posttime,
+        e?.sharedby,
+        e?.commentby,
+        e?.multipleimage,
+        e?.comment
       ]);
 
   @override

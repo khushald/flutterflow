@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
-import '../flutter_flow_theme.dart';
+import 'package:provider/provider.dart';
 import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 
 import '../../auth/base_auth_user_provider.dart';
-
-import '../../index.dart';
-import '../../main.dart';
-import '../lat_lng.dart';
-import '../place.dart';
+import '../../backend/push_notifications/push_notifications_handler.dart'
+    show PushNotificationsHandler;
+import '/index.dart';
+import '/main.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/lat_lng.dart';
+import '/flutter_flow/place.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 export 'package:go_router/go_router.dart';
@@ -77,117 +81,225 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? NavBarPage() : LoginWidget(),
+          appStateNotifier.loggedIn ? NavBarPage() : OnboardingWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
           builder: (context, _) =>
-              appStateNotifier.loggedIn ? NavBarPage() : LoginWidget(),
+              appStateNotifier.loggedIn ? NavBarPage() : OnboardingWidget(),
+          routes: [
+            FFRoute(
+              name: 'HomePage',
+              path: 'homePage',
+              builder: (context, params) => params.isEmpty
+                  ? NavBarPage(initialPage: 'HomePage')
+                  : HomePageWidget(),
+            ),
+            FFRoute(
+              name: 'Login',
+              path: 'login',
+              builder: (context, params) => LoginWidget(),
+            ),
+            FFRoute(
+              name: 'createprofile',
+              path: 'createprofile',
+              builder: (context, params) => CreateprofileWidget(),
+            ),
+            FFRoute(
+              name: 'postcreation',
+              path: 'postcreation',
+              builder: (context, params) => PostcreationWidget(
+                community: params.getParam('community',
+                    ParamType.DocumentReference, false, ['Communities']),
+              ),
+            ),
+            FFRoute(
+              name: 'Communitypage',
+              path: 'communitypage',
+              builder: (context, params) => CommunitypageWidget(
+                community: params.getParam('community',
+                    ParamType.DocumentReference, false, ['Communities']),
+              ),
+            ),
+            FFRoute(
+              name: 'communitylist',
+              path: 'communitylist',
+              builder: (context, params) => params.isEmpty
+                  ? NavBarPage(initialPage: 'communitylist')
+                  : CommunitylistWidget(),
+            ),
+            FFRoute(
+              name: 'search',
+              path: 'search',
+              builder: (context, params) => params.isEmpty
+                  ? NavBarPage(initialPage: 'search')
+                  : SearchWidget(),
+            ),
+            FFRoute(
+              name: 'createcommunityimage',
+              path: 'createcommunityimage',
+              builder: (context, params) => CreatecommunityimageWidget(),
+            ),
+            FFRoute(
+              name: 'createprofile_tags',
+              path: 'createprofileTags',
+              builder: (context, params) => CreateprofileTagsWidget(),
+            ),
+            FFRoute(
+              name: 'Signup',
+              path: 'signup',
+              builder: (context, params) => SignupWidget(),
+            ),
+            FFRoute(
+              name: 'Profile_friends',
+              path: 'profileFriends',
+              builder: (context, params) => ProfileFriendsWidget(
+                friend: params.getParam('friend', ParamType.DocumentReference,
+                    false, ['User_profile']),
+              ),
+            ),
+            FFRoute(
+              name: 'post',
+              path: 'post',
+              builder: (context, params) => PostWidget(
+                post: params.getParam(
+                    'post', ParamType.DocumentReference, false, ['Post']),
+              ),
+            ),
+            FFRoute(
+              name: 'postcreationcomm',
+              path: 'postcreationcomm',
+              builder: (context, params) => params.isEmpty
+                  ? NavBarPage(initialPage: 'postcreationcomm')
+                  : PostcreationcommWidget(),
+            ),
+            FFRoute(
+              name: 'addcommunity',
+              path: 'addcommunity',
+              builder: (context, params) => AddcommunityWidget(),
+            ),
+            FFRoute(
+              name: 'createcommunitytags',
+              path: 'createcommunitytags',
+              builder: (context, params) => CreatecommunitytagsWidget(
+                createdcommunity: params.getParam('createdcommunity',
+                    ParamType.DocumentReference, false, ['Communities']),
+              ),
+            ),
+            FFRoute(
+              name: 'createcommunity',
+              path: 'createcommunity',
+              builder: (context, params) => CreatecommunityWidget(),
+            ),
+            FFRoute(
+              name: 'profileimage',
+              path: 'profileimage',
+              builder: (context, params) => ProfileimageWidget(),
+            ),
+            FFRoute(
+              name: 'userprofile',
+              path: 'userprofile',
+              builder: (context, params) => params.isEmpty
+                  ? NavBarPage(initialPage: 'userprofile')
+                  : UserprofileWidget(),
+            ),
+            FFRoute(
+              name: 'Notifications',
+              path: 'notifications',
+              builder: (context, params) => NotificationsWidget(),
+            ),
+            FFRoute(
+              name: 'onboarding',
+              path: 'onboarding',
+              builder: (context, params) => OnboardingWidget(),
+            ),
+            FFRoute(
+              name: 'settingspage',
+              path: 'settingspage',
+              builder: (context, params) => SettingspageWidget(),
+            ),
+            FFRoute(
+              name: 'postCopy',
+              path: 'postCopy',
+              asyncParams: {
+                'comment':
+                    getDoc(['Post', 'Comment'], CommentRecord.fromSnapshot),
+              },
+              builder: (context, params) => PostCopyWidget(
+                comment: params.getParam('comment', ParamType.Document),
+              ),
+            ),
+            FFRoute(
+              name: 'AllChatsPage',
+              path: 'allChatsPage',
+              builder: (context, params) => AllChatsPageWidget(),
+            ),
+            FFRoute(
+              name: 'AllChatsPageCopy',
+              path: 'allChatsPageCopy',
+              builder: (context, params) => AllChatsPageCopyWidget(),
+            ),
+            FFRoute(
+              name: 'ChatPage',
+              path: 'chatPage',
+              asyncParams: {
+                'chatUser':
+                    getDoc(['User_profile'], UserProfileRecord.fromSnapshot),
+              },
+              builder: (context, params) => ChatPageWidget(
+                chatUser: params.getParam('chatUser', ParamType.Document),
+                chatRef: params.getParam(
+                    'chatRef', ParamType.DocumentReference, false, ['chats']),
+              ),
+            ),
+            FFRoute(
+              name: 'Robin3PhoneAuth',
+              path: 'robin3PhoneAuth',
+              builder: (context, params) => Robin3PhoneAuthWidget(),
+            ),
+            FFRoute(
+              name: 'PinCode',
+              path: 'pinCode',
+              builder: (context, params) => PinCodeWidget(),
+            ),
+            FFRoute(
+              name: 'createprofileCopy',
+              path: 'createprofileCopy',
+              builder: (context, params) => CreateprofileCopyWidget(),
+            ),
+            FFRoute(
+              name: 'followers',
+              path: 'followers',
+              builder: (context, params) => FollowersWidget(
+                communityref: params.getParam('communityref',
+                    ParamType.DocumentReference, false, ['Communities']),
+              ),
+            ),
+            FFRoute(
+              name: 'filteredpost',
+              path: 'filteredpost',
+              builder: (context, params) => FilteredpostWidget(
+                community: params.getParam('community',
+                    ParamType.DocumentReference, false, ['Communities']),
+              ),
+            ),
+            FFRoute(
+              name: 'Requests',
+              path: 'requests',
+              asyncParams: {
+                'comunitiesdoc':
+                    getDoc(['Communities'], CommunitiesRecord.fromSnapshot),
+              },
+              builder: (context, params) => RequestsWidget(
+                community: params.getParam('community',
+                    ParamType.DocumentReference, false, ['Communities']),
+                comunitiesdoc:
+                    params.getParam('comunitiesdoc', ParamType.Document),
+              ),
+            )
+          ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ),
-        FFRoute(
-          name: 'HomePage',
-          path: '/homePage',
-          builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'HomePage')
-              : HomePageWidget(),
-        ),
-        FFRoute(
-          name: 'Login',
-          path: '/login',
-          builder: (context, params) => LoginWidget(),
-        ),
-        FFRoute(
-          name: 'createprofile',
-          path: '/createprofile',
-          builder: (context, params) => CreateprofileWidget(),
-        ),
-        FFRoute(
-          name: 'postcreation',
-          path: '/postcreation',
-          builder: (context, params) => PostcreationWidget(
-            community: params.getParam('community', ParamType.DocumentReference,
-                false, ['Communities']),
-          ),
-        ),
-        FFRoute(
-          name: 'Communitypage',
-          path: '/communitypage',
-          builder: (context, params) => CommunitypageWidget(
-            community: params.getParam('community', ParamType.DocumentReference,
-                false, ['Communities']),
-          ),
-        ),
-        FFRoute(
-          name: 'communitylist',
-          path: '/communitylist',
-          builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'communitylist')
-              : CommunitylistWidget(),
-        ),
-        FFRoute(
-          name: 'search',
-          path: '/search',
-          builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'search')
-              : SearchWidget(),
-        ),
-        FFRoute(
-          name: 'createprofilleimage',
-          path: '/createprofilleimage',
-          builder: (context, params) => CreateprofilleimageWidget(),
-        ),
-        FFRoute(
-          name: 'createprofile_tags',
-          path: '/createprofileTags',
-          builder: (context, params) => CreateprofileTagsWidget(),
-        ),
-        FFRoute(
-          name: 'Signup',
-          path: '/signup',
-          builder: (context, params) => SignupWidget(),
-        ),
-        FFRoute(
-          name: 'Profile_friends',
-          path: '/profileFriends',
-          builder: (context, params) => ProfileFriendsWidget(
-            friend: params.getParam(
-                'friend', ParamType.DocumentReference, false, ['User_profile']),
-          ),
-        ),
-        FFRoute(
-          name: 'Profile_page',
-          path: '/profilePage',
-          builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'Profile_page')
-              : ProfilePageWidget(),
-        ),
-        FFRoute(
-          name: 'post',
-          path: '/post',
-          builder: (context, params) => PostWidget(
-            post: params
-                .getParam('post', ParamType.DocumentReference, false, ['Post']),
-          ),
-        ),
-        FFRoute(
-          name: 'postcreationcomm',
-          path: '/postcreationcomm',
-          builder: (context, params) => PostcreationcommWidget(),
-        ),
-        FFRoute(
-          name: 'addcommunity',
-          path: '/addcommunity',
-          builder: (context, params) => AddcommunityWidget(),
-        ),
-        FFRoute(
-          name: 'postcommunity',
-          path: '/postcommunity',
-          builder: (context, params) => PostcommunityWidget(
-            communitypost: params.getParam('communitypost',
-                ParamType.DocumentReference, false, ['community_post']),
-          ),
-        )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
 
@@ -353,7 +465,7 @@ class FFRoute {
 
           if (requireAuth && !appStateNotifier.loggedIn) {
             appStateNotifier.setRedirectLocationIfUnset(state.location);
-            return '/login';
+            return '/onboarding';
           }
           return null;
         },
@@ -366,18 +478,14 @@ class FFRoute {
                 )
               : builder(context, ffParams);
           final child = appStateNotifier.loading
-              ? Center(
-                  child: SizedBox(
-                    width: 50.0,
-                    height: 50.0,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Color(0xDAFF5963),
-                      ),
-                    ),
+              ? Container(
+                  color: Color(0xFF01080E),
+                  child: Image.asset(
+                    'assets/images/Flares_(4).png',
+                    fit: BoxFit.fill,
                   ),
                 )
-              : page;
+              : PushNotificationsHandler(child: page);
 
           final transitionInfo = state.transitionInfo;
           return transitionInfo.hasTransition
@@ -413,4 +521,24 @@ class TransitionInfo {
   final Alignment? alignment;
 
   static TransitionInfo appDefault() => TransitionInfo(hasTransition: false);
+}
+
+class RootPageContext {
+  const RootPageContext(this.isRootPage, [this.errorRoute]);
+  final bool isRootPage;
+  final String? errorRoute;
+
+  static bool isInactiveRootPage(BuildContext context) {
+    final rootPageContext = context.read<RootPageContext?>();
+    final isRootPage = rootPageContext?.isRootPage ?? false;
+    final location = GoRouter.of(context).location;
+    return isRootPage &&
+        location != '/' &&
+        location != rootPageContext?.errorRoute;
+  }
+
+  static Widget wrap(Widget child, {String? errorRoute}) => Provider.value(
+        value: RootPageContext(true, errorRoute),
+        child: child,
+      );
 }
